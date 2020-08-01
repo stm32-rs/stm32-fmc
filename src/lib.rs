@@ -115,7 +115,9 @@ mod macros;
 mod fmc;
 pub use fmc::*;
 
+#[cfg(feature = "sdram")]
 mod sdram;
+#[cfg(feature = "sdram")]
 pub use sdram::{PinsSdram, SdramPinSet, Sdram, SdramChip, SdramTargetBank};
 
 /// Memory device definitions

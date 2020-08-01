@@ -12,6 +12,7 @@ readme = "README.md"
 exclude = [".gitignore"]
 
 [package.metadata.docs.rs]
+features = ["sdram"]
 
 [dependencies.log]
 version = "^0.4.8"
@@ -22,3 +23,5 @@ optional = true
 embedded-hal = "0.2.4"
 
 [features]
+sdram = []
+default = ["sdram"]

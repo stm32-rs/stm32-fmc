@@ -34,8 +34,10 @@ impl FmcBank {
     }
 }
 
+#[cfg(feature = "sdram")]
 use crate::sdram::{PinsSdram, SdramBank1, SdramBank2};
 
+#[cfg(feature = "sdram")]
 macro_rules! impl_16bit_sdram {
     ($($pins:tt: [$ckeN:tt, $neN:tt,
         $nInternalB:expr $(, $pba1:ident, $ba1:tt)*]),+) => {
@@ -66,6 +68,7 @@ macro_rules! impl_16bit_sdram {
     }
 }
 
+#[cfg(feature = "sdram")]
 macro_rules! impl_32bit_sdram {
     ($($pins:tt: [$ckeN:tt, $neN:tt,
         $nInternalB:expr $(, $pba1:ident, $ba1:tt)*]),+) => {
@@ -104,6 +107,7 @@ macro_rules! impl_32bit_sdram {
     }
 }
 
+#[cfg(feature = "sdram")]
 impl_16bit_sdram! {
     // 16-bit SDRAM with 12 address lines, BA0 only
     SdramBank1: [SDCKE0, SDNE0, 2],
@@ -113,6 +117,7 @@ impl_16bit_sdram! {
     SdramBank2: [SDCKE1, SDNE1, 4, PBA1, BA1]
 }
 
+#[cfg(feature = "sdram")]
 impl_32bit_sdram! {
     // 32-bit SDRAM with 12 address lines, BA0 only
     SdramBank1: [SDCKE0, SDNE0, 2],
