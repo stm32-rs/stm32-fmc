@@ -6,7 +6,7 @@ use core::marker::PhantomData;
 
 use embedded_hal::blocking::delay::DelayUs;
 
-use crate::fmc::{FmcBank, FmcRegisters, PinsSdram};
+use crate::fmc::{FmcBank, FmcRegisters};
 use crate::FmcPeripheral;
 
 use crate::ral::{fmc, modify_reg, write_reg};
@@ -70,9 +70,11 @@ pub trait SdramChip {
 
 /// SDRAM Controller
 #[allow(missing_debug_implementations)]
-pub struct Sdram<IC, PINS, FMC> {
-    /// FMC pins
-    _pins: PhantomData<PINS>,
+pub struct Sdram<FMC, IC> {
+    /// SDRAM bank
+    target_bank: SdramTargetBank,
+    /// FMC memory bank to use
+    fmc_bank: FmcBank,
     /// Parameters for the SDRAM IC
     _chip: PhantomData<IC>,
     /// FMC peripheral
@@ -96,34 +98,74 @@ enum SdramCommand {
 /// Target bank for SDRAM commands
 #[derive(Clone, Copy, Debug, PartialEq)]
 #[allow(unused)]
-enum SdramTargetBank {
+pub enum SdramTargetBank {
+    /// Targeting the 1st SDRAM bank
     Bank1,
+    /// Targeting the 2nd SDRAM bank
     Bank2,
+    /// Targeting both SDRAM banks
     Both,
+}
+impl From<u32> for SdramTargetBank {
+    fn from(n: u32) -> Self {
+        match n {
+            1 => SdramTargetBank::Bank1,
+            2 => SdramTargetBank::Bank2,
+            _ => unimplemented!(),
+        }
+    }
+}
+
+/// SDRAM target bank and corresponding FMC Bank
+pub trait SdramPinSet {
+    /// External SDRAM bank
+    const TARGET: SdramTargetBank;
+    /// Corresponding FMC bank to map this to
+    const FMC: FmcBank;
+}
+
+/// SDRAM on Bank 1 of FMC controller
+#[derive(Clone, Copy, Debug)]
+pub struct SdramBank1;
+impl SdramPinSet for SdramBank1 {
+    const TARGET: SdramTargetBank = SdramTargetBank::Bank1;
+    const FMC: FmcBank = FmcBank::Bank5;
+}
+
+/// SDRAM on Bank 2 of FMC controller
+#[derive(Clone, Copy, Debug)]
+pub struct SdramBank2;
+impl SdramPinSet for SdramBank2 {
+    const TARGET: SdramTargetBank = SdramTargetBank::Bank2;
+    const FMC: FmcBank = FmcBank::Bank6;
+}
+
+/// Set of pins for an SDRAM, that corresponds to a specific bank
+pub trait PinsSdram<Bank: SdramPinSet> {
+    /// The number of address pins in this set of pins
+    const ADDRESS_LINES: u8;
+    /// The number of SDRAM banks addressable with this set of pins
+    const NUMBER_INTERNAL_BANKS: u8;
 }
 
 /// Like `modfiy_reg`, but applies to bank 1 or 2 based on a varaiable
 macro_rules! modify_reg_banked {
     ( $periph:path, $instance:expr, $bank:expr, $reg1:ident, $reg2:ident, $( $field:ident : $value:expr ),+ ) => {{
+        use SdramTargetBank::*;
+
         match $bank {
-            1 => modify_reg!( $periph, $instance, $reg1, $( $field : $value ),*),
-            2 => modify_reg!( $periph, $instance, $reg2, $( $field : $value ),*),
+            Bank1 => modify_reg!( $periph, $instance, $reg1, $( $field : $value ),*),
+            Bank2 => modify_reg!( $periph, $instance, $reg2, $( $field : $value ),*),
             _ => panic!(),
         }
     }};
 }
 
-impl<IC, PINS, FMC: FmcPeripheral> Sdram<IC, PINS, FMC>
-where
-    IC: SdramChip,
-    PINS: PinsSdram,
-{
+impl<IC: SdramChip, FMC: FmcPeripheral> Sdram<FMC, IC> {
     /// New SDRAM instance
     ///
     /// `_pins` must be a set of pins connecting to an SDRAM on the FMC
-    /// controller. This is currently implemented for the types
-    /// [`PinsSdramBank1`](struct.PinsSdramBank1.html) and
-    /// [`PinsSdramBank2`](struct.PinsSdramBank2.html)
+    /// controller
     ///
     /// # Panics
     ///
@@ -132,7 +174,11 @@ where
     ///
     /// * Panics if there are not enough bank address lines in `PINS` to access
     /// the whole SDRAM
-    pub fn new(fmc: FMC, _pins: PINS, _chip: IC) -> Self {
+    pub fn new<PINS, BANK>(fmc: FMC, _pins: PINS, _chip: IC) -> Self
+    where
+        PINS: PinsSdram<BANK>,
+        BANK: SdramPinSet,
+    {
         assert!(
             PINS::ADDRESS_LINES >= IC::CONFIG.row_bits,
             "Not enough address pins to access all SDRAM rows"
@@ -147,7 +193,8 @@ where
         );
 
         Sdram {
-            _pins: PhantomData,
+            target_bank: BANK::TARGET,
+            fmc_bank: BANK::FMC,
             _chip: PhantomData,
             fmc,
             regs: FmcRegisters::new::<FMC>(),
@@ -156,19 +203,30 @@ where
 
     /// New SDRAM instance
     ///
-    /// `_pins` must be a set of pins connecting to an SDRAM on the FMC
-    /// controller. This is currently implemented for the types
-    /// [`PinsSdramBank1`](struct.PinsSdramBank1.html) and
-    /// [`PinsSdramBank2`](struct.PinsSdramBank2.html)
+    /// `bank` denotes which SDRAM bank to target. This can be either bank 1 or
+    /// bank 2.
     ///
     /// # Safety
     ///
-    /// The pins are not checked against the requirements for this SDRAM
-    /// chip. So you may be able to initialise a SDRAM without enough pins to
-    /// access the whole memory
-    pub unsafe fn new_unchecked(fmc: FMC, _chip: IC) -> Self {
+    /// The pins are not checked against the requirements for the SDRAM chip. So
+    /// you may be able to initialise a SDRAM without enough pins to access the
+    /// whole memory
+    pub fn new_unchecked(
+        fmc: FMC,
+        bank: impl Into<SdramTargetBank>,
+        _chip: IC,
+    ) -> Self {
+        // Select default bank mapping
+        let target_bank = bank.into();
+        let fmc_bank = match target_bank {
+            SdramTargetBank::Bank1 => FmcBank::Bank5,
+            SdramTargetBank::Bank2 => FmcBank::Bank6,
+            _ => unimplemented!(),
+        };
+
         Sdram {
-            _pins: PhantomData,
+            target_bank,
+            fmc_bank,
             _chip: PhantomData,
             fmc,
             regs: FmcRegisters::new::<FMC>(),
@@ -191,14 +249,9 @@ where
         D: DelayUs<u8>,
     {
         use SdramCommand::*;
-        use SdramTargetBank::*;
 
         // Select bank
-        let bank = match PINS::EXTERNAL_BANK {
-            1 => Bank1,
-            2 => Bank2,
-            _ => unimplemented!(),
-        };
+        let bank = self.target_bank;
 
         // Calcuate SD clock
         let (sd_clock_hz, divide) = {
@@ -231,12 +284,7 @@ where
             self.fmc.enable();
 
             // Program device features and timing
-            self.set_features_timings(
-                PINS::EXTERNAL_BANK,
-                IC::CONFIG,
-                IC::TIMING,
-                divide,
-            );
+            self.set_features_timings(IC::CONFIG, IC::TIMING, divide);
 
             // Enable memory controller
             self.fmc.memory_controller_enable();
@@ -277,11 +325,7 @@ where
         }
 
         // Memory now initialised. Return base address
-        match PINS::EXTERNAL_BANK {
-            1 => FmcBank::Bank5.ptr(),
-            2 => FmcBank::Bank6.ptr(),
-            _ => unimplemented!(),
-        }
+        self.fmc_bank.ptr()
     }
 
     /// Program memory device features and timings
@@ -295,7 +339,6 @@ where
     /// For example, see RM0433 rev 7 Section 22.9.3
     unsafe fn set_features_timings(
         &mut self,
-        sdram_bank: u8,
         config: FmcSdramConfiguration,
         timing: FmcSdramTiming,
         sd_clock_divide: u32,
@@ -333,7 +376,7 @@ where
                     SDCLK: sd_clock_divide);
 
         modify_reg_banked!(fmc, self.regs.global(),
-                           sdram_bank, SDCR1, SDCR2,
+                           self.target_bank, SDCR1, SDCR2,
                            // fields
                            WP: config.write_protection as u32,
                            CAS: config.cas_latency as u32,
@@ -377,7 +420,7 @@ where
                     TRP: timing.row_precharge - 1
         );
         modify_reg_banked!(fmc, self.regs.global(),
-                           sdram_bank, SDTR1, SDTR2,
+                           self.target_bank, SDTR1, SDTR2,
                            // fields
                            TRCD: timing.row_to_column - 1,
                            TWR: write_recovery - 1,

@@ -112,7 +112,7 @@ mod fmc;
 pub use fmc::*;
 
 mod sdram;
-pub use sdram::{Sdram, SdramChip};
+pub use sdram::{PinsSdram, SdramPinSet, Sdram, SdramChip, SdramTargetBank};
 
 mod devices;
 pub use devices::*;
