@@ -2,8 +2,14 @@
 #![allow(non_camel_case_types)]
 //! Flexible memory controller
 //!
+//! With the caveat that SDCMR:MRD is 13-bits wide on these parts:
+//!
 //! Used by: stm32f469, stm32f479
 //! Used by: stm32f745, stm32f765, stm32f7x6, stm32f7x7, stm32f7x9
+//!
+//! With the caveat that BCR1:{FMCEN,BMAP} are not included:
+//!
+//! Used by: stm32h743, stm32h743v, stm32h747cm4, stm32h747cm7, stm32h753, stm32h753v
 
 use super::super::register::{RORegister, RWRegister};
 #[cfg(not(feature = "nosync"))]
@@ -1909,8 +1915,8 @@ pub mod SDCMR {
     pub mod MRD {
         /// Offset (9 bits)
         pub const offset: u32 = 9;
-        /// Mask (13 bits: 0x1fff << 9)
-        pub const mask: u32 = 0x1fff << offset;
+        /// Mask (14 bits: 0x3fff << 9)
+        pub const mask: u32 = 0x3fff << offset;
         /// Read-only values (empty)
         pub mod R {}
         /// Write-only values (empty)
