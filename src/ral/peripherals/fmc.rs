@@ -1377,20 +1377,6 @@ pub mod BWTR1 {
         }
     }
 
-    /// DATLAT
-    pub mod DATLAT {
-        /// Offset (24 bits)
-        pub const offset: u32 = 24;
-        /// Mask (4 bits: 0b1111 << 24)
-        pub const mask: u32 = 0b1111 << offset;
-        /// Read-only values (empty)
-        pub mod R {}
-        /// Write-only values (empty)
-        pub mod W {}
-        /// Read-write values (empty)
-        pub mod RW {}
-    }
-
     /// CLKDIV
     pub mod CLKDIV {
         /// Offset (20 bits)
@@ -1470,7 +1456,6 @@ pub mod BWTR2 {
     pub use super::BWTR1::BUSTURN;
     pub use super::BWTR1::CLKDIV;
     pub use super::BWTR1::DATAST;
-    pub use super::BWTR1::DATLAT;
 }
 
 /// SRAM/NOR-Flash write timing registers 1
@@ -1481,7 +1466,6 @@ pub mod BWTR3 {
     pub use super::BWTR1::BUSTURN;
     pub use super::BWTR1::CLKDIV;
     pub use super::BWTR1::DATAST;
-    pub use super::BWTR1::DATLAT;
 }
 
 /// SRAM/NOR-Flash write timing registers 1
@@ -1492,7 +1476,6 @@ pub mod BWTR4 {
     pub use super::BWTR1::BUSTURN;
     pub use super::BWTR1::CLKDIV;
     pub use super::BWTR1::DATAST;
-    pub use super::BWTR1::DATLAT;
 }
 
 /// SDRAM Control Register 1
