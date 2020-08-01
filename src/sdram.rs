@@ -4,10 +4,12 @@ use core::cmp;
 use core::convert::TryInto;
 use core::marker::PhantomData;
 
-use crate::hal::blocking::delay::DelayUs;
-use crate::stm32;
+use embedded_hal::blocking::delay::DelayUs;
 
-use crate::fmc::{Fmc, FmcBank, PinsSdram};
+use crate::fmc::{FmcBank, FmcRegisters, PinsSdram};
+use crate::FmcPeripheral;
+
+use crate::ral::{fmc, modify_reg, write_reg};
 
 /// FMC SDRAM Configuration Structure definition
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -43,17 +45,17 @@ pub struct FmcSdramTiming {
     /// Period between refresh cycles in nanoseconds
     pub refresh_period_ns: u32,
     /// Delay between a LOAD MODE register command and an ACTIVATE command
-    pub mode_register_to_active: u8,
+    pub mode_register_to_active: u32,
     /// Delay from releasing self refresh to next command
-    pub exit_self_refresh: u8,
+    pub exit_self_refresh: u32,
     /// Delay between an ACTIVATE and a PRECHARGE command
-    pub active_to_precharge: u8,
+    pub active_to_precharge: u32,
     /// Auto refresh command duration
-    pub row_cycle: u8,
+    pub row_cycle: u32,
     /// Delay between a PRECHARGE command and another command
-    pub row_precharge: u8,
+    pub row_precharge: u32,
     /// Delay between an ACTIVATE command and READ/WRITE command
-    pub row_to_column: u8,
+    pub row_to_column: u32,
 }
 
 pub trait SdramChip {
@@ -64,12 +66,15 @@ pub trait SdramChip {
 
 /// SDRAM Controller
 #[allow(missing_debug_implementations)]
-pub struct Sdram<IC, PINS> {
-    mem: Fmc,
+pub struct Sdram<IC, PINS, FMC> {
     /// FMC pins
     _pins: PhantomData<PINS>,
     /// Parameters for the SDRAM IC
     _chip: PhantomData<IC>,
+    /// FMC peripheral
+    _fmc: PhantomData<FMC>,
+    /// Register access
+    regs: FmcRegisters,
 }
 
 /// SDRAM Commands
@@ -93,10 +98,21 @@ enum SdramTargetBank {
     Both,
 }
 
-impl<IC, PINS> Sdram<IC, PINS>
+/// Like `modfiy_reg`, but applies to bank 1 or 2 based on a varaiable
+macro_rules! modify_reg_banked {
+    ( $periph:path, $instance:expr, $bank:expr, $reg1:ident, $reg2:ident, $( $field:ident : $value:expr ),+ ) => {{
+        match $bank {
+            1 => modify_reg!( $periph, $instance, $reg1, $( $field : $value ),*),
+            2 => modify_reg!( $periph, $instance, $reg2, $( $field : $value ),*),
+            _ => panic!(),
+        }
+    }};
+}
+
+impl<IC, PINS, FMC: FmcPeripheral> Sdram<IC, PINS, FMC>
 where
     IC: SdramChip,
-    PINS: PinsSdram<stm32::FMC>,
+    PINS: PinsSdram,
 {
     /// New SDRAM instance
     ///
@@ -112,12 +128,7 @@ where
     ///
     /// * Panics if there are not enough bank address lines in `PINS`
     /// to access the whole SDRAM
-    pub fn new(
-        fmc: stm32::FMC,
-        //rec_fmc: rec::Fmc,
-        _pins: PINS,
-        _chip: IC,
-    ) -> Self {
+    pub fn new(_fmc: FMC, _pins: PINS, _chip: IC) -> Self {
         assert!(
             PINS::ADDRESS_LINES >= IC::CONFIG.row_bits,
             "Not enough address pins to access all SDRAM rows"
@@ -132,9 +143,10 @@ where
         );
 
         Sdram {
-            mem: Fmc::new(fmc),
             _pins: PhantomData,
             _chip: PhantomData,
+            _fmc: PhantomData,
+            regs: FmcRegisters::new::<FMC>(),
         }
     }
 
@@ -150,16 +162,12 @@ where
     /// The pins are not checked against the requirements for this
     /// SDRAM chip. So you may be able to initialise a SDRAM without
     /// enough pins to access the whole memory
-    pub unsafe fn new_unchecked(
-        fmc: stm32::FMC,
-        // rec_fmc: rec::Fmc,
-        _pins: PINS,
-        _chip: IC,
-    ) -> Self {
+    pub unsafe fn new_unchecked(_chip: IC) -> Self {
         Sdram {
-            mem: Fmc::new(fmc),
             _pins: PhantomData,
             _chip: PhantomData,
+            _fmc: PhantomData,
+            regs: FmcRegisters::new::<FMC>(),
         }
     }
 
@@ -176,11 +184,7 @@ where
     ///
     /// * Panics if the FMC kernal clock `fmc_ker_ck` is too fast for
     /// maximum SD clock in `IC::TIMING`
-    pub fn init<D>(
-        &mut self,
-        delay: &mut D,
-        // core_clocks: CoreClocks,
-    ) -> *mut u32
+    pub fn init<D>(&mut self, delay: &mut D) -> *mut u32
     where
         D: DelayUs<u8>,
     {
@@ -202,7 +206,7 @@ where
 
         // Calcuate SD clock from the current `fmc_ker_ck`
         let sd_clock_hz = {
-            let fmc_ker_ck_hz = 100_000_000; // self
+            let fmc_ker_ck_hz = 200_000_000; // self
                                              // .mem
                                              // .get_ker_clk(core_clocks)
                                              // .expect("FMC kernel clock is not running!")
@@ -223,6 +227,9 @@ where
         );
 
         unsafe {
+            // Enable memory controller registers
+            FMC::enable();
+
             // Program device features and timing
             self.set_features_timings(
                 PINS::EXTERNAL_BANK,
@@ -230,8 +237,8 @@ where
                 IC::TIMING,
             );
 
-            // Enable controller
-            self.mem.enable();
+            // Enable memory controller
+            FMC::memory_controller_enable();
 
             // Step 1: Send a clock configuration enable command
             self.send_command(ClkEnable, bank);
@@ -259,10 +266,13 @@ where
                 refresh_counter_top >= 41 && refresh_counter_top < (1 << 13),
                 "Impossible configuration for H7 FMC Controller"
             );
-            self.mem
-                .fmc
-                .sdrtr
-                .modify(|_, w| w.count().bits(refresh_counter_top as u16));
+
+            modify_reg!(
+                fmc,
+                self.regs.global(),
+                SDRTR,
+                COUNT: refresh_counter_top as u32
+            );
         }
 
         // Memory now initialised. Return base address
@@ -287,75 +297,62 @@ where
         config: FmcSdramConfiguration,
         timing: FmcSdramTiming,
     ) {
-        // SDRAM Controller/Timing registers
-        // let sd = match sdram_bank {
-        //     1 => self.mem.fmc.sdbank1(),
-        //     2 => self.mem.fmc.sdbank2(),
-        //     _ => panic!(),
-        // };
-
         // Features ---- SDCR REGISTER
 
         // CAS latency 1 ~ 3 cycles
         assert!(
             config.cas_latency >= 1 && config.cas_latency <= 3,
-            "Impossible configuration for H7 FMC Controller"
+            "Impossible configuration for FMC Controller"
         );
 
         // Row Bits: 11 ~ 13
         assert!(
             config.row_bits >= 11 && config.row_bits <= 13,
-            "Impossible configuration for H7 FMC Controller"
+            "Impossible configuration for FMC Controller"
         );
 
         // Column bits: 8 ~ 11
         assert!(
             config.column_bits >= 8 && config.column_bits <= 11,
-            "Impossible configuration for H7 FMC Controller"
+            "Impossible configuration for FMC Controller"
         );
 
         // Read Pipe Delay Cycles 0 ~ 2
         assert!(
             config.read_pipe_delay_cycles <= 2,
-            "Impossible configuration for H7 FMC Controller"
+            "Impossible configuration for FMC Controller"
         );
 
         // Common settings written to SDCR1 only
-        self.mem.fmc.sdcr1.modify(|_, w| {
-            w.rpipe()
-                .bits(config.read_pipe_delay_cycles)
-                .rburst()
-                .bit(config.read_burst)
-                .sdclk()
-                .bits(config.sd_clock_divide)
-        });
-        self.mem.fmc.sdcr1.modify(|_, w| {
-            w.wp()
-                .bit(config.write_protection)
-                .cas()
-                .bits(config.cas_latency)
-                .nb()
-                .bit(match config.internal_banks {
-                    2 => false,
-                    4 => true,
-                    _ => {
-                        panic!("Impossible configuration for H7 FMC Controller")
-                    }
-                })
-                .mwid()
-                .bits(match config.memory_data_width {
-                    8 => 0,
-                    16 => 1,
-                    32 => 2,
-                    _ => {
-                        panic!("Impossible configuration for H7 FMC Controller")
-                    }
-                })
-                .nr()
-                .bits(config.row_bits - 11)
-                .nc()
-                .bits(config.column_bits - 8)
-        });
+        modify_reg!(fmc, self.regs.global(), SDCR1,
+                    RPIPE: config.read_pipe_delay_cycles as u32,
+                    RBURST: config.read_burst as u32,
+                    SDCLK: config.sd_clock_divide as u32);
+
+        modify_reg_banked!(fmc, self.regs.global(),
+                           sdram_bank, SDCR1, SDCR2,
+                           // fields
+                           WP: config.write_protection as u32,
+                           CAS: config.cas_latency as u32,
+                           NB:
+                           match config.internal_banks {
+                               2 => 0,
+                               4 => 1,
+                               _ => {
+                                   panic!("Impossible configuration for FMC Controller")
+                               }
+                           },
+                           MWID:
+                           match config.memory_data_width {
+                               8 => 0,
+                               16 => 1,
+                               32 => 2,
+                               _ => {
+                                   panic!("Impossible configuration for FMC Controller")
+                               }
+                           },
+                           NR: config.row_bits as u32 - 11,
+                           NC: config.column_bits as u32 - 8);
 
         // Timing ---- SDTR REGISTER
 
@@ -372,24 +369,19 @@ where
             cmp::max(write_recovery_self_refresh, write_recovery_row_cycle);
 
         // Common seting written to SDTR1 only
-        self.mem.fmc.sdtr1.modify(|_, w| {
-            w.trc()
-                .bits(timing.row_cycle - 1)
-                .trp()
-                .bits(timing.row_precharge - 1)
-        });
-        self.mem.fmc.sdtr1.modify(|_, w| {
-            w.trcd()
-                .bits(timing.row_to_column - 1)
-                .twr()
-                .bits(write_recovery - 1)
-                .tras()
-                .bits(minimum_self_refresh - 1)
-                .txsr()
-                .bits(timing.exit_self_refresh - 1)
-                .tmrd()
-                .bits(timing.mode_register_to_active - 1)
-        });
+        modify_reg!(fmc, self.regs.global(), SDTR1,
+                    TRC: timing.row_cycle - 1,
+                    TRP: timing.row_precharge - 1
+        );
+        modify_reg_banked!(fmc, self.regs.global(),
+                           sdram_bank, SDTR1, SDTR2,
+                           // fields
+                           TRCD: timing.row_to_column - 1,
+                           TWR: write_recovery - 1,
+                           TRAS: minimum_self_refresh - 1,
+                           TXSR: timing.exit_self_refresh - 1,
+                           TMRD: timing.mode_register_to_active - 1
+        );
     }
 
     /// Send command to SDRAM
@@ -413,23 +405,21 @@ where
         };
         // Bank for issuing command
         let (b1, b2) = match target {
-            Bank1 => (true, false),
-            Bank2 => (false, true),
-            Both => (true, true),
+            Bank1 => (1, 0),
+            Bank2 => (0, 1),
+            Both => (1, 1),
         };
 
         // Write to SDCMR
-        self.mem.fmc.sdcmr.modify(|_, w| {
-            w.mrd()
-                .bits(mode_reg)
-                .nrfs()
-                .bits(number_refresh)
-                .ctb1()
-                .bit(b1)
-                .ctb2()
-                .bit(b2)
-                .mode()
-                .bits(cmd)
-        });
+        write_reg!(
+            fmc,
+            self.regs.global(),
+            SDCMR,
+            MRD: mode_reg as u32,
+            NRFS: number_refresh as u32,
+            CTB1: b1,
+            CTB2: b2,
+            MODE: cmd
+        );
     }
 }

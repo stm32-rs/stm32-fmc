@@ -109,25 +109,8 @@
 #[macro_use]
 mod macros;
 
-// #[cfg(feature = "stm32h7xx-hal")]
-// pub use stm32h7xx_hal as hal;
-#[cfg(feature = "stm32h7xx-hal")]
-pub use stm32h7xx_hal::device as stm32;
-
-// #[cfg(feature = "stm32f7xx-hal")]
-// pub use stm32f7xx_hal as hal;
-#[cfg(feature = "stm32f7xx-hal")]
-pub use stm32f7xx_hal::device as stm32;
-
-// #[cfg(feature = "stm32f4xx-hal")]
-// pub use stm32f4xx_hal as hal;
-#[cfg(feature = "stm32f4xx-hal")]
-pub use stm32f4xx_hal::stm32;
-
-use embedded_hal as hal;
-
 mod fmc;
-pub use fmc::{PinsSdramBank1, PinsSdramBank2};
+pub use fmc::*;
 
 mod sdram;
 pub use sdram::Sdram;
@@ -136,3 +119,24 @@ mod is42s32800g;
 pub use is42s32800g::*;
 mod is42s16400j;
 pub use is42s16400j::*;
+
+mod ral;
+
+/// A trait for device-specific FMC peripherals. Implement this to add support
+/// for a new hardware platform. Peripherals that have this trait must have the
+/// same register block as STM32 FMC peripherals.
+pub unsafe trait FmcPeripheral: Send + Sync {
+    /// Pointer to the register block
+    const REGISTERS: *const ();
+
+    //const SDRAM_BANK1_ADDRESS: usize;
+
+    /// Enables FMC on its peripheral bus
+    fn enable();
+
+    /// Enables the FMC memory controller (not always required)
+    fn memory_controller_enable() {}
+
+    // /// Kernel clock frequency in Hertz
+    //fn ker_ck_frequency_hz(&self) -> u32;
+}
