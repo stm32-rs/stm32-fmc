@@ -72,7 +72,7 @@ pub struct Sdram<IC, PINS, FMC> {
     /// Parameters for the SDRAM IC
     _chip: PhantomData<IC>,
     /// FMC peripheral
-    _fmc: PhantomData<FMC>,
+    fmc: FMC,
     /// Register access
     regs: FmcRegisters,
 }
@@ -128,7 +128,7 @@ where
     ///
     /// * Panics if there are not enough bank address lines in `PINS`
     /// to access the whole SDRAM
-    pub fn new(_fmc: FMC, _pins: PINS, _chip: IC) -> Self {
+    pub fn new(fmc: FMC, _pins: PINS, _chip: IC) -> Self {
         assert!(
             PINS::ADDRESS_LINES >= IC::CONFIG.row_bits,
             "Not enough address pins to access all SDRAM rows"
@@ -145,7 +145,7 @@ where
         Sdram {
             _pins: PhantomData,
             _chip: PhantomData,
-            _fmc: PhantomData,
+            fmc,
             regs: FmcRegisters::new::<FMC>(),
         }
     }
@@ -162,11 +162,11 @@ where
     /// The pins are not checked against the requirements for this
     /// SDRAM chip. So you may be able to initialise a SDRAM without
     /// enough pins to access the whole memory
-    pub unsafe fn new_unchecked(_chip: IC) -> Self {
+    pub unsafe fn new_unchecked(fmc: FMC, _chip: IC) -> Self {
         Sdram {
             _pins: PhantomData,
             _chip: PhantomData,
-            _fmc: PhantomData,
+            fmc,
             regs: FmcRegisters::new::<FMC>(),
         }
     }
@@ -204,14 +204,11 @@ where
             "SD clock divider is invalid!"
         );
 
-        // Calcuate SD clock from the current `fmc_ker_ck`
+        // Calcuate SD clock
         let sd_clock_hz = {
-            let fmc_ker_ck_hz = 200_000_000; // self
-                                             // .mem
-                                             // .get_ker_clk(core_clocks)
-                                             // .expect("FMC kernel clock is not running!")
-                                             // .0;
-            fmc_ker_ck_hz / IC::CONFIG.sd_clock_divide as u32
+            let fmc_source_ck_hz = self.fmc.source_clock_hz();
+
+            fmc_source_ck_hz / IC::CONFIG.sd_clock_divide as u32
         };
         // Check that the SD clock is acceptable
         assert!(

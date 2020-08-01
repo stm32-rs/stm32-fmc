@@ -127,14 +127,15 @@ pub unsafe trait FmcPeripheral: Send + Sync {
     /// Pointer to the register block
     const REGISTERS: *const ();
 
-    //const SDRAM_BANK1_ADDRESS: usize;
-
-    /// Enables FMC on its peripheral bus
+    /// Enables the FMC on its peripheral bus
     fn enable();
 
     /// Enables the FMC memory controller (not always required)
     fn memory_controller_enable() {}
 
-    // /// Kernel clock frequency in Hertz
-    //fn ker_ck_frequency_hz(&self) -> u32;
+    /// The frequency of the clock used as a source for the fmc_clk.
+    ///
+    /// F4/F7/G4: hclk
+    /// H7: fmc_ker_ck
+    fn source_clock_hz(&self) -> u32;
 }
