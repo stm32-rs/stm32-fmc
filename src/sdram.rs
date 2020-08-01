@@ -120,18 +120,18 @@ where
 {
     /// New SDRAM instance
     ///
-    /// `_pins` must be a set of pins connecting to an SDRAM on the
-    /// FMC controller. This is currently implemented for the types
+    /// `_pins` must be a set of pins connecting to an SDRAM on the FMC
+    /// controller. This is currently implemented for the types
     /// [`PinsSdramBank1`](struct.PinsSdramBank1.html) and
     /// [`PinsSdramBank2`](struct.PinsSdramBank2.html)
     ///
     /// # Panics
     ///
-    /// * Panics if there are not enough address lines in `PINS` to
-    /// access the whole SDRAM
+    /// * Panics if there are not enough address lines in `PINS` to access the
+    /// whole SDRAM
     ///
-    /// * Panics if there are not enough bank address lines in `PINS`
-    /// to access the whole SDRAM
+    /// * Panics if there are not enough bank address lines in `PINS` to access
+    /// the whole SDRAM
     pub fn new(fmc: FMC, _pins: PINS, _chip: IC) -> Self {
         assert!(
             PINS::ADDRESS_LINES >= IC::CONFIG.row_bits,
@@ -156,16 +156,16 @@ where
 
     /// New SDRAM instance
     ///
-    /// `_pins` must be a set of pins connecting to an SDRAM on the
-    /// FMC controller. This is currently implemented for the types
+    /// `_pins` must be a set of pins connecting to an SDRAM on the FMC
+    /// controller. This is currently implemented for the types
     /// [`PinsSdramBank1`](struct.PinsSdramBank1.html) and
     /// [`PinsSdramBank2`](struct.PinsSdramBank2.html)
     ///
     /// # Safety
     ///
-    /// The pins are not checked against the requirements for this
-    /// SDRAM chip. So you may be able to initialise a SDRAM without
-    /// enough pins to access the whole memory
+    /// The pins are not checked against the requirements for this SDRAM
+    /// chip. So you may be able to initialise a SDRAM without enough pins to
+    /// access the whole memory
     pub unsafe fn new_unchecked(fmc: FMC, _chip: IC) -> Self {
         Sdram {
             _pins: PhantomData,
@@ -175,18 +175,16 @@ where
         }
     }
 
-    /// Initialise SDRAM instance. Delay is used to wait the SDRAM
-    /// powerup delay
+    /// Initialise SDRAM instance. Delay is used to wait the SDRAM powerup
+    /// delay
     ///
     /// Returns a raw pointer to the memory-mapped SDRAM block
     ///
     /// # Panics
     ///
-    /// * Panics if the FMC kernel clock `fmc_ker_ck` is not running
-    ///
     /// * Panics if any setting in `IC::CONFIG` cannot be achieved
     ///
-    /// * Panics if the FMC kernal clock `fmc_ker_ck` is too fast for
+    /// * Panics if the FMC source clock is too fast for
     /// maximum SD clock in `IC::TIMING`
     pub fn init<D>(&mut self, delay: &mut D) -> *mut u32
     where
@@ -290,9 +288,9 @@ where
     ///
     /// # Safety
     ///
-    /// Some settings are common between both
-    /// banks. Calling this function mutliple times with different
-    /// banks and different configurations is unsafe.
+    /// Some settings are common between both banks. Calling this function
+    /// mutliple times with different banks and different configurations is
+    /// unsafe.
     ///
     /// For example, see RM0433 rev 7 Section 22.9.3
     unsafe fn set_features_timings(
