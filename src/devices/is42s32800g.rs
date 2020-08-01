@@ -50,7 +50,6 @@ pub mod is42s32800g_6 {
             internal_banks: 4,     // 4 internal banks
             cas_latency: 3,        // CAS latency = 3
             write_protection: false,
-            sd_clock_divide: 2, // Divide by 2
             read_burst: true,
             read_pipe_delay_cycles: 0,
         };

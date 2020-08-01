@@ -52,7 +52,6 @@ pub mod is42s16400j_7 {
             internal_banks: 4,     // 4 internal banks
             cas_latency: 2,        // CAS latency = 2
             write_protection: false,
-            sd_clock_divide: 2, // Divide by 2
             read_burst: true,
             read_pipe_delay_cycles: 0,
         };

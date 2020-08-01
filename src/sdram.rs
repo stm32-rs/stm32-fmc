@@ -26,8 +26,6 @@ pub struct FmcSdramConfiguration {
     pub cas_latency: u8,
     /// Enables the SDRAM device to be accessed in write mode
     pub write_protection: bool,
-    /// SDRAM clock divider
-    pub sd_clock_divide: u8,
     /// This bit enable the SDRAM controller to anticipate the next read
     pub read_burst: bool,
     /// Delay in system clock cycles on read data path
@@ -204,28 +202,29 @@ where
             _ => unimplemented!(),
         };
 
-        // Clock divider 2 ~ 3
-        assert!(
-            IC::CONFIG.sd_clock_divide >= 2 && IC::CONFIG.sd_clock_divide <= 3,
-            "SD clock divider is invalid!"
-        );
-
         // Calcuate SD clock
-        let sd_clock_hz = {
+        let (sd_clock_hz, divide) = {
             let fmc_source_ck_hz = self.fmc.source_clock_hz();
+            let sd_clock_wanted = IC::TIMING.max_sd_clock_hz;
 
-            fmc_source_ck_hz / IC::CONFIG.sd_clock_divide as u32
+            // Divider, round up. At least 2
+            let divide: u32 = cmp::max(
+                (fmc_source_ck_hz + sd_clock_wanted - 1) / sd_clock_wanted,
+                2,
+            );
+
+            // Max 3
+            assert!(divide <= 3,
+                    "Source clock too fast for required SD_CLOCK. The maximum division ratio is 3");
+
+            let sd_clock_hz = fmc_source_ck_hz / divide;
+            (sd_clock_hz, divide)
         };
-        // Check that the SD clock is acceptable
-        assert!(
-            sd_clock_hz <= IC::TIMING.max_sd_clock_hz,
-            "FMC kernel clock is too fast for the SD
-                 clock period of the SDRAM!"
-        );
 
         fmc_trace!(
-            "FMC clock {:?} (Max {:?})",
+            "FMC clock {:?} (/{}, Max {:?})",
             sd_clock_hz,
+            divide,
             IC::TIMING.max_sd_clock_hz
         );
 
@@ -238,6 +237,7 @@ where
                 PINS::EXTERNAL_BANK,
                 IC::CONFIG,
                 IC::TIMING,
+                divide,
             );
 
             // Enable memory controller
@@ -300,6 +300,7 @@ where
         sdram_bank: u8,
         config: FmcSdramConfiguration,
         timing: FmcSdramTiming,
+        sd_clock_divide: u32,
     ) {
         // Features ---- SDCR REGISTER
 
@@ -331,7 +332,7 @@ where
         modify_reg!(fmc, self.regs.global(), SDCR1,
                     RPIPE: config.read_pipe_delay_cycles as u32,
                     RBURST: config.read_burst as u32,
-                    SDCLK: config.sd_clock_divide as u32);
+                    SDCLK: sd_clock_divide);
 
         modify_reg_banked!(fmc, self.regs.global(),
                            sdram_bank, SDCR1, SDCR2,

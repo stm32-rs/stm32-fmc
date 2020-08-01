@@ -52,7 +52,6 @@ pub mod mt48lc4m32b2_6 {
             internal_banks: 4,     // 4 internal banks
             cas_latency: 3,        // CAS latency = 2
             write_protection: false,
-            sd_clock_divide: 2, // Divide by 2
             read_burst: true,
             read_pipe_delay_cycles: 0,
         };
