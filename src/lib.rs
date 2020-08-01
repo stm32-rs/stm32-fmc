@@ -127,10 +127,10 @@ pub unsafe trait FmcPeripheral: Send + Sync {
     const REGISTERS: *const ();
 
     /// Enables the FMC on its peripheral bus
-    fn enable();
+    fn enable(&mut self);
 
     /// Enables the FMC memory controller (not always required)
-    fn memory_controller_enable() {}
+    fn memory_controller_enable(&mut self) {}
 
     /// The frequency of the clock used as a source for the fmc_clk.
     ///

@@ -230,8 +230,8 @@ where
         );
 
         unsafe {
-            // Enable memory controller registers
-            FMC::enable();
+            // Enable memory controller AHB register access
+            self.fmc.enable();
 
             // Program device features and timing
             self.set_features_timings(
@@ -241,7 +241,7 @@ where
             );
 
             // Enable memory controller
-            FMC::memory_controller_enable();
+            self.fmc.memory_controller_enable();
 
             // Step 1: Send a clock configuration enable command
             self.send_command(ClkEnable, bank);
