@@ -2,9 +2,7 @@
 #[macro_use]
 mod log {
     macro_rules! fmc_log {
-        (trace, $($arg:expr),*) => {
-            ()
-        };
+        (trace, $($arg:expr),*) => { log::trace!($($arg),*); };
     }
 }
 
@@ -12,17 +10,10 @@ mod log {
 #[macro_use]
 mod log {
     macro_rules! fmc_log {
-        ($level:ident, $($arg:expr),*) => {
-            $({
-                ()
-            }
-            )*
-        };
+        ($level:ident, $($arg:expr),*) => { $( let _ = $arg; )* }
     }
 }
 
 macro_rules! fmc_trace {
-    ($($arg:expr),*) => {
-        ()
-    };
+    ($($arg:expr),*) => (fmc_log!(trace, $($arg),*));
 }
