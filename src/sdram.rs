@@ -286,8 +286,9 @@ where
     ///
     /// Some settings are common between both
     /// banks. Calling this function mutliple times with different
-    /// banks and different configurations is unsafe. Refer to
-    /// RM0433 Section 21.9 / RM0399 Section 23.9
+    /// banks and different configurations is unsafe.
+    ///
+    /// For example, see RM0433 rev 7 Section 22.9.3
     unsafe fn set_features_timings(
         &mut self,
         sdram_bank: u8,
