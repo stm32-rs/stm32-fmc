@@ -1,6 +1,6 @@
 //! HAL for Flexible memory controller (FMC)
 
-/// FMC Bank Base Addresses
+/// FMC banks
 ///
 /// For example, see RM0433 rev 7 Figure 98.
 #[derive(Clone, Copy, Debug, PartialEq)]

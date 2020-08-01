@@ -1,96 +1,100 @@
-//! Hardware Abstraction Layer for Flexible Memory Controller (FMC) on the
-//! STM32H7
+//! Hardware Abstraction Layer for STM32 Memory Controllers (FMC/FSMC)
 //!
-//! Currently only SDRAM functions are implemented.
 //!
-//! This crate depends on the GPIO, Clock and Delay functionality from
-//! [`stm32h7xx-hal`].
+//! # Implementation Guide
 //!
-//! # SDRAM
+//! You can use the functionality in this crate by implementing the
+//! [`FmcPeripheral`](FmcPeripheral) trait. You should implement this trait for a
+//! structure that:
 //!
-//! The H7 supports up to 2 external SDRAM devices. This library
-//! currently only supports 1, although it may be on either bank 1 or
-//! 2.
+//! * Takes ownership of the `FMC`/`FSMC` peripheral
+//! * Takes ownership of any structures / ZSTs related to the power or clock for the `FMC`/`FSMC` peripheral
+//! * Contains the frequency of the `FMC`/`FSMC` source clock (usually HCLK)
 //!
-//! ## IO Setup
+//! A basic structure:
 //!
-//! IO is constructed by configuring each pin as high speed and
-//! assigning to the FMC block (usually AF12).
-//!
-//! ```rust
-//!     let pa0 = gpioa.pa0.into_push_pull_output()
-//!         .set_speed(Speed::VeryHigh)
-//!         .into_alternate_af12()
-//!         .internal_pull_up(true);
+//! ```
+//! pub struct FMC {
+//!     source_clock: u32,
+//!     // any other fields here...
+//! }
 //! ```
 //!
-//! Then contruct a PinSdram type from the required pins. They must be
-//! specified in the order given here.
+//! An implementation of [`FmcPeripheral`](FmcPeripheral):
 //!
 //! ```rust
-//!     let fmc_io = stm32h7_fmc::PinsSdramBank1(
-//!         (
-//!             // A0-A11
-//!             pa0, ...
-//!             // BA0-BA1
-//!             // D0-D31
-//!             // NBL0 - NBL3
-//!             // SDCKE
-//!             // SDCLK
-//!             // SDNCAS
-//!             // SDNE
-//!             // SDRAS
-//!             // SDNWE
-//!         )
-//!     );
+//! use stm32_fmc::FmcPeripheral;
+//!
+//! unsafe impl Sync for FMC {}
+//! unsafe impl FmcPeripheral for FMC {
+//!     const REGISTERS: *const () = stm32::FMC::ptr() as *const ();
+//!
+//!     fn enable(&mut self) {
+//!         // Enable and reset the FMC/FSMC using the RCC registers
+//!         // Typically RCC.AHBxEN and RCC.AHBxRST
+//!     }
+//!
+//!     fn memory_controller_enable(&mut self) {
+//!         // Only required if your part has an `FMCEN` bit
+//!     }
+//!
+//!     fn source_clock_hz(&self) -> u32 {
+//!         self.hclk
+//!     }
+//! }
 //! ```
 //!
-//! See the [examples](examples) for an ergonomic method using macros.
+//! In a HAL, you can allow users to construct your structure by implementing a
+//! `new` method, or by making the fields public.
 //!
-//! ## Usage
+//! ## Wrap constructor methods
 //!
-//! First create a new SDRAM from the FMC peripheral, IO and SDRAM
-//! device constants.
+//! Each memory controller type ([`SDRAM`](Sdram), `NAND` (todo), ..) provides both
+//! `new` and `new_unchecked` methods.
+//!
+//! For the convenience of users, you may want to wrap these with your `new` method,
+//! so that each memory can be created from the peripheral in one step.
+//!
+//! ```
+//! use stm32_fmc::{PinsSdram, Sdram, SdramChip, SdramPinSet, SdramTargetBank};
+//!
+//! impl FMC {
+//!     /// A new SDRAM memory via the Flexible Memory Controller
+//!     pub fn sdram<BANK: SdramPinSet, PINS: PinsSdram<BANK>, CHIP: SdramChip>(
+//!         fmc: stm32::FMC,
+//!         pins: PINS,
+//!         chip: CHIP,
+//!         clocks: &CoreClocks,
+//!     ) -> Sdram<FMC, CHIP> {
+//!         let fmc = Self::new(fmc, clocks);
+//!         Sdram::new(fmc, pins, chip)
+//!     }
+//!
+//!     /// A new SDRAM memory via the Flexible Memory Controller
+//!     pub fn sdram_unchecked<CHIP: SdramChip, BANK: Into<SdramTargetBank>>(
+//!         fmc: stm32::FMC,
+//!         bank: BANK,
+//!         chip: CHIP,
+//!         clocks: &CoreClocks,
+//!     ) -> Sdram<FMC, CHIP> {
+//!         let fmc = Self::new(fmc, clocks);
+//!         Sdram::new_unchecked(fmc, bank, chip)
+//!     }
+//! }
+//! ```
+//!
+//! # Pin implementations
+//!
+//! In contrast with the `new_unchecked` methods, the `new` methods require the user
+//! pass a tuple as the `pins` argument. In a HAL, you can mark which types are
+//! suitable as follows:
 //!
 //! ```rust
-//!     let mut sdram =
-//!         stm32h7_fmc::Sdram::new(dp.FMC, fmc_io, is42s32800g_6::Is42s32800g {});
+//! impl stm32_fmc::A0 for gpiof::PF0<Alternate<AF12>> {}
+//! // ...
 //! ```
 //!
-//! Then initialise the controller and the SDRAM device. Convert the
-//! raw pointer to a sized slice using `from_raw_parts_mut`.
-//!
-//!
-//! ```rust
-//!     let ram = unsafe {
-//!         // Initialise controller and SDRAM
-//!         let ram_ptr: *mut u32 = sdram.init(&mut delay, ccdr.clocks);
-//!
-//!         // 32 MByte = 256Mbit SDRAM = 8M u32 words
-//!         slice::from_raw_parts_mut(ram_ptr, 8 * 1024 * 1024)
-//!     };
-//! ```
-//!
-//!
-//! ## License
-//!
-//! Licensed under either of
-//!
-//!  * Apache License, Version 2.0
-//!    ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
-//!  * MIT license
-//!    ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
-//!
-//! at your option.
-//!
-//! ## Contribution
-//!
-//! Unless you explicitly state otherwise, any contribution
-//! intentionally submitted for inclusion in the work by you, as
-//! defined in the Apache-2.0 license, shall be dual licensed as
-//! above, without any additional terms or conditions.
-//!
-//! [`stm32h7xx-hal`]: https://crates.io/crates/stm32h7xx-hal
+
 #![no_std]
 // rustc lints.
 #![warn(

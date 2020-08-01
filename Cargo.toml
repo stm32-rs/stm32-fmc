@@ -6,10 +6,10 @@ edition = "2018"
 categories = ["embedded", "hardware-support", "no-std"]
 description = "Hardware Abstraction Layer for STM32 Memory Controllers (FMC/FSMC)"
 keywords = ["stm32", "fmc", "sdram", "memory"]
-repository = "https://github.com/TODO"
+repository = "https://github.com/stm32-rs/stm32-fmc"
 license = "MIT/Apache-2.0"
 readme = "README.md"
-exclude = [".gitignore", "README.tpl", ".travis.yml"]
+exclude = [".gitignore"]
 
 [package.metadata.docs.rs]
 
