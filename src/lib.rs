@@ -115,10 +115,8 @@ pub use fmc::*;
 mod sdram;
 pub use sdram::Sdram;
 
-mod is42s32800g;
-pub use is42s32800g::*;
-mod is42s16400j;
-pub use is42s16400j::*;
+mod devices;
+pub use devices::*;
 
 mod ral;
 
