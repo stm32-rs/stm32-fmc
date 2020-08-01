@@ -113,7 +113,7 @@ mod fmc;
 pub use fmc::*;
 
 mod sdram;
-pub use sdram::Sdram;
+pub use sdram::{Sdram, SdramChip};
 
 mod devices;
 pub use devices::*;
