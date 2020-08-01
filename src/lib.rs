@@ -118,8 +118,8 @@ pub use fmc::*;
 mod sdram;
 pub use sdram::{PinsSdram, SdramPinSet, Sdram, SdramChip, SdramTargetBank};
 
-mod devices;
-pub use devices::*;
+/// Memory device definitions
+pub mod devices;
 
 mod ral;
 
