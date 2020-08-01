@@ -6,11 +6,17 @@
 #[derive(Clone, Copy, Debug, PartialEq)]
 #[allow(unused)]
 pub enum FmcBank {
+    /// Bank1: NOR/PSRAM/SRAM
     Bank1,
+    /// Bank2:
     Bank2,
+    /// Bank3: NAND Flash
     Bank3,
+    /// Bank4:
     Bank4,
+    /// Bank5: SDRAM 1
     Bank5,
+    /// Bank6: SDRAM 2
     Bank6,
 }
 impl FmcBank {
@@ -30,8 +36,11 @@ impl FmcBank {
 
 /// Set of pins for an SDRAM
 pub trait PinsSdram {
+    /// The external bank this set of pins corresponds to
     const EXTERNAL_BANK: u8;
+    /// The number of SDRAM banks addressable with this set of pins
     const NUMBER_INTERNAL_BANKS: u8;
+    /// The number of address pins in this set of pins
     const ADDRESS_LINES: u8;
 }
 
@@ -130,104 +139,203 @@ impl_32bit_sdram! {
     PinsSdramBank2: [2, SDCKE1, SDNE1, 4, PBA1, BA1]
 }
 
+/// Marks a type as an A0 pin
 pub trait A0 {}
+/// Marks a type as an A1 pin
 pub trait A1 {}
+/// Marks a type as an A10 pin
 pub trait A10 {}
+/// Marks a type as an A11 pin
 pub trait A11 {}
+/// Marks a type as an A12 pin
 pub trait A12 {}
+/// Marks a type as an A13 pin
 pub trait A13 {}
+/// Marks a type as an A14 pin
 pub trait A14 {}
+/// Marks a type as an A15 pin
 pub trait A15 {}
+/// Marks a type as an A16 pin
 pub trait A16 {}
+/// Marks a type as an A17 pin
 pub trait A17 {}
+/// Marks a type as an A18 pin
 pub trait A18 {}
+/// Marks a type as an A19 pin
 pub trait A19 {}
+/// Marks a type as an A2 pin
 pub trait A2 {}
+/// Marks a type as an A20 pin
 pub trait A20 {}
+/// Marks a type as an A21 pin
 pub trait A21 {}
+/// Marks a type as an A22 pin
 pub trait A22 {}
+/// Marks a type as an A23 pin
 pub trait A23 {}
+/// Marks a type as an A24 pin
 pub trait A24 {}
+/// Marks a type as an A25 pin
 pub trait A25 {}
+/// Marks a type as an A3 pin
 pub trait A3 {}
+/// Marks a type as an A4 pin
 pub trait A4 {}
+/// Marks a type as an A5 pin
 pub trait A5 {}
+/// Marks a type as an A6 pin
 pub trait A6 {}
+/// Marks a type as an A7 pin
 pub trait A7 {}
+/// Marks a type as an A8 pin
 pub trait A8 {}
+/// Marks a type as an A9 pin
 pub trait A9 {}
+/// Marks a type as a BA0 pin
 pub trait BA0 {}
+/// Marks a type as a BA1 pin
 pub trait BA1 {}
+/// Marks a type as a CLK pin
 pub trait CLK {}
+/// Marks a type as a D0 pin
 pub trait D0 {}
+/// Marks a type as a D1 pin
 pub trait D1 {}
+/// Marks a type as a D10 pin
 pub trait D10 {}
+/// Marks a type as a D11 pin
 pub trait D11 {}
+/// Marks a type as a D12 pin
 pub trait D12 {}
+/// Marks a type as a D13 pin
 pub trait D13 {}
+/// Marks a type as a D14 pin
 pub trait D14 {}
+/// Marks a type as a D15 pin
 pub trait D15 {}
+/// Marks a type as a D16 pin
 pub trait D16 {}
+/// Marks a type as a D17 pin
 pub trait D17 {}
+/// Marks a type as a D18 pin
 pub trait D18 {}
+/// Marks a type as a D19 pin
 pub trait D19 {}
+/// Marks a type as a D2 pin
 pub trait D2 {}
+/// Marks a type as a D20 pin
 pub trait D20 {}
+/// Marks a type as a D21 pin
 pub trait D21 {}
+/// Marks a type as a D22 pin
 pub trait D22 {}
+/// Marks a type as a D23 pin
 pub trait D23 {}
+/// Marks a type as a D24 pin
 pub trait D24 {}
+/// Marks a type as a D25 pin
 pub trait D25 {}
+/// Marks a type as a D26 pin
 pub trait D26 {}
+/// Marks a type as a D27 pin
 pub trait D27 {}
+/// Marks a type as a D28 pin
 pub trait D28 {}
+/// Marks a type as a D29 pin
 pub trait D29 {}
+/// Marks a type as a D3 pin
 pub trait D3 {}
+/// Marks a type as a D30 pin
 pub trait D30 {}
+/// Marks a type as a D31 pin
 pub trait D31 {}
+/// Marks a type as a D4 pin
 pub trait D4 {}
+/// Marks a type as a D5 pin
 pub trait D5 {}
+/// Marks a type as a D6 pin
 pub trait D6 {}
+/// Marks a type as a D7 pin
 pub trait D7 {}
+/// Marks a type as a D8 pin
 pub trait D8 {}
+/// Marks a type as a D9 pin
 pub trait D9 {}
+/// Marks a type as a DA0 pin
 pub trait DA0 {}
+/// Marks a type as a DA1 pin
 pub trait DA1 {}
+/// Marks a type as a DA10 pin
 pub trait DA10 {}
+/// Marks a type as a DA11 pin
 pub trait DA11 {}
+/// Marks a type as a DA12 pin
 pub trait DA12 {}
+/// Marks a type as a DA13 pin
 pub trait DA13 {}
+/// Marks a type as a DA14 pin
 pub trait DA14 {}
+/// Marks a type as a DA15 pin
 pub trait DA15 {}
+/// Marks a type as a DA2 pin
 pub trait DA2 {}
+/// Marks a type as a DA3 pin
 pub trait DA3 {}
+/// Marks a type as a DA4 pin
 pub trait DA4 {}
+/// Marks a type as a DA5 pin
 pub trait DA5 {}
+/// Marks a type as a DA6 pin
 pub trait DA6 {}
+/// Marks a type as a DA7 pin
 pub trait DA7 {}
+/// Marks a type as a DA8 pin
 pub trait DA8 {}
+/// Marks a type as a DA9 pin
 pub trait DA9 {}
+/// Marks a type as an INT pin
 pub trait INT {}
+/// Marks a type as a NBL0 pin
 pub trait NBL0 {}
+/// Marks a type as a NBL1 pin
 pub trait NBL1 {}
+/// Marks a type as a NBL2 pin
 pub trait NBL2 {}
+/// Marks a type as a NBL3 pin
 pub trait NBL3 {}
+/// Marks a type as a NCE pin
 pub trait NCE {}
+/// Marks a type as a NE1 pin
 pub trait NE1 {}
+/// Marks a type as a NE2 pin
 pub trait NE2 {}
+/// Marks a type as a NE3 pin
 pub trait NE3 {}
+/// Marks a type as a NE4 pin
 pub trait NE4 {}
+/// Marks a type as a NL pin
 pub trait NL {}
+/// Marks a type as a NOE pin
 pub trait NOE {}
+/// Marks a type as a NWAIT pin
 pub trait NWAIT {}
+/// Marks a type as a NWE pin
 pub trait NWE {}
+/// Marks a type as a SDCKE0 pin
 pub trait SDCKE0 {}
+/// Marks a type as a SDCKE1 pin
 pub trait SDCKE1 {}
+/// Marks a type as a SDCLK pin
 pub trait SDCLK {}
+/// Marks a type as a SDNCAS pin
 pub trait SDNCAS {}
+/// Marks a type as a SDNE0 pin
 pub trait SDNE0 {}
+/// Marks a type as a SDNE1 pin
 pub trait SDNE1 {}
+/// Marks a type as a SDNRAS pin
 pub trait SDNRAS {}
+/// Marks a type as a SDNWE pin
 pub trait SDNWE {}
 
 use crate::ral::fmc;

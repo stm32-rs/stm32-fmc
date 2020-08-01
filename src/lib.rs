@@ -93,18 +93,17 @@
 //! [`stm32h7xx-hal`]: https://crates.io/crates/stm32h7xx-hal
 #![no_std]
 // rustc lints.
-// #![warn(
-//     bare_trait_objects,
-//     missing_copy_implementations,
-//     missing_debug_implementations,
-//     missing_docs,
-//     trivial_casts,
-//     trivial_numeric_casts,
-//     unused_extern_crates,
-//     unused_import_braces,
-//     unused_qualifications,
-//     unused_results
-// )]
+#![warn(
+    bare_trait_objects,
+    missing_copy_implementations,
+    missing_debug_implementations,
+    missing_docs,
+    trivial_casts,
+    trivial_numeric_casts,
+    unused_extern_crates,
+    unused_qualifications,
+    unused_results
+)]
 
 #[macro_use]
 mod macros;

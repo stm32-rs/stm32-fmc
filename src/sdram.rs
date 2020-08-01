@@ -58,9 +58,15 @@ pub struct FmcSdramTiming {
     pub row_to_column: u32,
 }
 
+/// Respresents a model of SDRAM chip
 pub trait SdramChip {
+    /// Value of the mode register
     const MODE_REGISTER: u16;
+
+    /// SDRAM controller configuration
     const CONFIG: FmcSdramConfiguration;
+
+    /// Timing parameters
     const TIMING: FmcSdramTiming;
 }
 
