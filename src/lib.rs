@@ -23,6 +23,8 @@
 //! An implementation of [`FmcPeripheral`](FmcPeripheral):
 //!
 //! ```rust
+//! # mod stm32 { pub struct FMC {} impl FMC { pub const fn ptr() -> *const u32 { &0 } } }
+//! # struct FMC { source_clock: u32 }
 //! use stm32_fmc::FmcPeripheral;
 //!
 //! unsafe impl Sync for FMC {}
@@ -39,7 +41,7 @@
 //!     }
 //!
 //!     fn source_clock_hz(&self) -> u32 {
-//!         self.hclk
+//!         self.source_clock
 //!     }
 //! }
 //! ```
@@ -56,6 +58,15 @@
 //! so that each memory can be created from the peripheral in one step.
 //!
 //! ```
+//! # mod stm32 { pub struct FMC {} }
+//! # type CoreClocks = u32;
+//! # struct FMC {}
+//! # impl FMC { pub fn new(_: stm32::FMC, _: &CoreClocks) -> Self { Self {} } }
+//! # unsafe impl stm32_fmc::FmcPeripheral for FMC {
+//! #     const REGISTERS: *const () = &0 as *const _ as *const ();
+//! #     fn enable(&mut self) { }
+//! #     fn source_clock_hz(&self) -> u32 { 0 }
+//! # }
 //! use stm32_fmc::{PinsSdram, Sdram, SdramChip, SdramPinSet, SdramTargetBank};
 //!
 //! impl FMC {
@@ -90,6 +101,10 @@
 //! suitable as follows:
 //!
 //! ```rust
+//! # pub use core::marker::PhantomData;
+//! # struct AF12 {}
+//! # struct Alternate<AF> { _af: PhantomData<AF> }
+//! # mod gpiof { pub use core::marker::PhantomData; pub struct PF0<A> { _a: PhantomData<A> } }
 //! impl stm32_fmc::A0 for gpiof::PF0<Alternate<AF12>> {}
 //! // ...
 //! ```
