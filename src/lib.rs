@@ -143,7 +143,7 @@ mod ral;
 /// A trait for device-specific FMC peripherals. Implement this to add support
 /// for a new hardware platform. Peripherals that have this trait must have the
 /// same register block as STM32 FMC peripherals.
-pub unsafe trait FmcPeripheral: Send + Sync {
+pub unsafe trait FmcPeripheral: Send {
     /// Pointer to the register block
     const REGISTERS: *const ();
 
