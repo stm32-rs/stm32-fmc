@@ -18,7 +18,7 @@ currently only supports 1, although it may be on either bank 1 or
 2.
 
 To pass pins to
-[`Sdram::new`](https://docs.rs/stm32-fmc/latest/stm32-fmc/struct.Sdram.html#method.new),
+[`Sdram::new`](https://docs.rs/stm32-fmc/latest/stm32_fmc/struct.Sdram.html#method.new),
 create a tuple with the following ordering:
 
 ```rust
@@ -50,7 +50,7 @@ TODO
 
 ## Implementing
 
-See the [docs]((https://docs.rs/stm32-fmc)
+See the [docs](https://docs.rs/stm32-fmc)
 
 <!-- ```rust -->
 <!--     let mut sdram = -->
