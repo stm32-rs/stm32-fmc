@@ -6,7 +6,7 @@ use core::marker::PhantomData;
 
 use embedded_hal::blocking::delay::DelayUs;
 
-use crate::fmc::{FmcBank, FmcRegisters};
+use crate::fmc::{AddressPinSet, FmcBank, FmcRegisters};
 use crate::FmcPeripheral;
 
 use crate::ral::{fmc, modify_reg, write_reg};
@@ -124,7 +124,7 @@ pub trait SdramPinSet {
     const FMC: FmcBank;
 }
 
-/// SDRAM on Bank 1 of FMC controller
+/// Type to mark SDRAM on Bank 1 of FMC controller
 #[derive(Clone, Copy, Debug)]
 pub struct SdramBank1;
 impl SdramPinSet for SdramBank1 {
@@ -132,7 +132,7 @@ impl SdramPinSet for SdramBank1 {
     const FMC: FmcBank = FmcBank::Bank5;
 }
 
-/// SDRAM on Bank 2 of FMC controller
+/// Type to mark SDRAM on Bank 2 of FMC controller
 #[derive(Clone, Copy, Debug)]
 pub struct SdramBank2;
 impl SdramPinSet for SdramBank2 {
@@ -141,9 +141,7 @@ impl SdramPinSet for SdramBank2 {
 }
 
 /// Set of pins for an SDRAM, that corresponds to a specific bank
-pub trait PinsSdram<Bank: SdramPinSet> {
-    /// The number of address pins in this set of pins
-    const ADDRESS_LINES: u8;
+pub trait PinsSdram<Bank: SdramPinSet, Address: AddressPinSet> {
     /// The number of SDRAM banks addressable with this set of pins
     const NUMBER_INTERNAL_BANKS: u8;
 }
@@ -174,17 +172,18 @@ impl<IC: SdramChip, FMC: FmcPeripheral> Sdram<FMC, IC> {
     ///
     /// * Panics if there are not enough bank address lines in `PINS` to access
     /// the whole SDRAM
-    pub fn new<PINS, BANK>(fmc: FMC, _pins: PINS, _chip: IC) -> Self
+    pub fn new<PINS, BANK, ADDR>(fmc: FMC, _pins: PINS, _chip: IC) -> Self
     where
-        PINS: PinsSdram<BANK>,
+        PINS: PinsSdram<BANK, ADDR>,
+        ADDR: AddressPinSet,
         BANK: SdramPinSet,
     {
         assert!(
-            PINS::ADDRESS_LINES >= IC::CONFIG.row_bits,
+            ADDR::ADDRESS_PINS >= IC::CONFIG.row_bits,
             "Not enough address pins to access all SDRAM rows"
         );
         assert!(
-            PINS::ADDRESS_LINES >= IC::CONFIG.column_bits,
+            ADDR::ADDRESS_PINS >= IC::CONFIG.column_bits,
             "Not enough address pins to access all SDRAM colums"
         );
         assert!(

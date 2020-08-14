@@ -67,11 +67,18 @@
 //! #     fn enable(&mut self) { }
 //! #     fn source_clock_hz(&self) -> u32 { 0 }
 //! # }
-//! use stm32_fmc::{PinsSdram, Sdram, SdramChip, SdramPinSet, SdramTargetBank};
+//! use stm32_fmc::{
+//!     AddressPinSet, PinsSdram, Sdram, SdramChip, SdramPinSet, SdramTargetBank,
+//! };
 //!
 //! impl FMC {
 //!     /// A new SDRAM memory via the Flexible Memory Controller
-//!     pub fn sdram<BANK: SdramPinSet, PINS: PinsSdram<BANK>, CHIP: SdramChip>(
+//!     pub fn sdram<
+//!         BANK: SdramPinSet,
+//!         ADDR: AddressPinSet,
+//!         PINS: PinsSdram<BANK, ADDR>,
+//!         CHIP: SdramChip,
+//!     >(
 //!         fmc: stm32::FMC,
 //!         pins: PINS,
 //!         chip: CHIP,

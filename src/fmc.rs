@@ -34,34 +34,66 @@ impl FmcBank {
     }
 }
 
+/// Set of address pins
+pub trait AddressPinSet {
+    /// The number of address pins in this set of pins
+    const ADDRESS_PINS: u8;
+}
+
+macro_rules! address_pin_markers {
+    ($($AddressPins:ident, $addr:tt, $doc:expr;)+) => {
+        $(
+            /// Type to mark that there are
+            #[doc=$doc]
+            /// address pins
+            #[derive(Clone, Copy, Debug)]
+            pub struct $AddressPins;
+            impl AddressPinSet for $AddressPins {
+                const ADDRESS_PINS: u8 = $addr;
+            }
+        )+
+    };
+}
+address_pin_markers!(
+    AddressPins11, 11, "11";
+    AddressPins12, 12, "12";
+    AddressPins13, 13, "13";
+);
+
+// ---- SDRAM ----
+
 #[cfg(feature = "sdram")]
 use crate::sdram::{PinsSdram, SdramBank1, SdramBank2};
 
 #[cfg(feature = "sdram")]
 macro_rules! impl_16bit_sdram {
     ($($pins:tt: [$ckeN:tt, $neN:tt,
-        $nInternalB:expr $(, $pba1:ident, $ba1:tt)*]),+) => {
+                  $nInternalB:expr
+                  $(, $pba1:ident: $ba1:tt)* ; // BA1 pins
+                  $addressPins:ident
+                  [ $($pa:ident: $a:ident),* ] // Address pins
+    ]),+) => {
         $(
             #[rustfmt::skip]
             /// 16-bit SDRAM
-            impl<PA0, PA1, PA2, PA3, PA4, PA5, PA6, PA7, PA8, PA9, PA10,
-            PA11, PBA0, $($pba1,)* PD0, PD1, PD2, PD3, PD4, PD5, PD6, PD7, PD8,
+            impl<PA0, PA1, PA2, PA3, PA4, PA5, PA6, PA7, PA8, PA9, PA10, $($pa,)*
+            PBA0, $($pba1,)* PD0, PD1, PD2, PD3, PD4, PD5, PD6, PD7, PD8,
             PD9, PD10, PD11, PD12, PD13, PD14, PD15, PNBL0, PNBL1, PSDCKEn,
             PSDCLK, PSDNCAS, PSDNEn, PSDNRAS, PSDNWE>
-                PinsSdram<$pins>
-                for (PA0, PA1, PA2, PA3, PA4, PA5, PA6, PA7, PA8, PA9, PA10,
-                     PA11, PBA0, $($pba1,)* PD0, PD1, PD2, PD3, PD4, PD5, PD6, PD7,
+                PinsSdram<$pins, $addressPins>
+                for (PA0, PA1, PA2, PA3, PA4, PA5, PA6, PA7, PA8, PA9, PA10, $($pa,)*
+                     PBA0, $($pba1,)* PD0, PD1, PD2, PD3, PD4, PD5, PD6, PD7,
                      PD8, PD9, PD10, PD11, PD12, PD13, PD14, PD15, PNBL0, PNBL1,
                      PSDCKEn, PSDCLK, PSDNCAS, PSDNEn, PSDNRAS, PSDNWE)
             where PA0: A0, PA1: A1, PA2: A2, PA3: A3, PA4: A4, PA5: A5, PA6: A6,
-                  PA7: A7, PA8: A8, PA9: A9, PA10: A10, PA11: A11,
+                  PA7: A7, PA8: A8, PA9: A9, PA10: A10, $($pa:$a,)*
                   PBA0: BA0, $($pba1:$ba1,)*
                   PD0: D0, PD1: D1, PD2: D2, PD3: D3, PD4: D4, PD5: D5, PD6: D6,
                   PD7: D7, PD8: D8, PD9: D9, PD10: D10, PD11: D11, PD12: D12,
                   PD13: D13, PD14: D14, PD15: D15,
                   PNBL0: NBL0, PNBL1: NBL1, PSDCKEn: $ckeN, PSDCLK: SDCLK,
                   PSDNCAS: SDNCAS, PSDNEn: $neN, PSDNRAS: SDNRAS, PSDNWE: SDNWE {
-                const ADDRESS_LINES: u8 = 12;
+
                 const NUMBER_INTERNAL_BANKS: u8 = $nInternalB;
             }
         )+
@@ -71,25 +103,29 @@ macro_rules! impl_16bit_sdram {
 #[cfg(feature = "sdram")]
 macro_rules! impl_32bit_sdram {
     ($($pins:tt: [$ckeN:tt, $neN:tt,
-        $nInternalB:expr $(, $pba1:ident, $ba1:tt)*]),+) => {
+                  $nInternalB:expr
+                  $(, $pba1:ident: $ba1:tt)* ; // BA1 pins
+                  $addressPins:ident
+                  [ $($pa:ident: $a:ident),* ] // Address pins
+            ]),+) => {
         $(
             #[rustfmt::skip]
             /// 32-bit SDRAM
-            impl<PA0, PA1, PA2, PA3, PA4, PA5, PA6, PA7, PA8, PA9, PA10,
-            PA11, PBA0, $($pba1,)* PD0, PD1, PD2, PD3, PD4, PD5, PD6, PD7, PD8,
+            impl<PA0, PA1, PA2, PA3, PA4, PA5, PA6, PA7, PA8, PA9, PA10, $($pa,)*
+            PBA0, $($pba1,)* PD0, PD1, PD2, PD3, PD4, PD5, PD6, PD7, PD8,
             PD9, PD10, PD11, PD12, PD13, PD14, PD15, PD16, PD17, PD18, PD19,
             PD20, PD21, PD22, PD23, PD24, PD25, PD26, PD27, PD28, PD29, PD30,
             PD31, PNBL0, PNBL1, PNBL2, PNBL3, PSDCKEn, PSDCLK, PSDNCAS,
             PSDNEn, PSDNRAS, PSDNWE>
-                PinsSdram<$pins>
-                for (PA0, PA1, PA2, PA3, PA4, PA5, PA6, PA7, PA8, PA9, PA10,
-                     PA11, PBA0, $($pba1,)* PD0, PD1, PD2, PD3, PD4, PD5, PD6, PD7,
+                PinsSdram<$pins, $addressPins>
+                for (PA0, PA1, PA2, PA3, PA4, PA5, PA6, PA7, PA8, PA9, PA10, $($pa,)*
+                     PBA0, $($pba1,)* PD0, PD1, PD2, PD3, PD4, PD5, PD6, PD7,
                      PD8, PD9, PD10, PD11, PD12, PD13, PD14, PD15, PD16, PD17,
                      PD18, PD19, PD20, PD21, PD22, PD23, PD24, PD25, PD26, PD27,
                      PD28, PD29, PD30, PD31, PNBL0, PNBL1, PNBL2, PNBL3, PSDCKEn,
                      PSDCLK, PSDNCAS, PSDNEn, PSDNRAS, PSDNWE)
             where PA0: A0, PA1: A1, PA2: A2, PA3: A3, PA4: A4, PA5: A5, PA6: A6,
-                  PA7: A7, PA8: A8, PA9: A9, PA10: A10, PA11: A11,
+                  PA7: A7, PA8: A8, PA9: A9, PA10: A10, $($pa:$a,)*
                   PBA0: BA0, $($pba1:$ba1,)*
                   PD0: D0, PD1: D1, PD2: D2, PD3: D3, PD4: D4, PD5: D5, PD6: D6,
                   PD7: D7, PD8: D8, PD9: D9, PD10: D10, PD11: D11, PD12: D12,
@@ -100,7 +136,7 @@ macro_rules! impl_32bit_sdram {
                   PNBL0: NBL0, PNBL1: NBL1, PNBL2: NBL2, PNBL3: NBL3,
                   PSDCKEn: $ckeN, PSDCLK: SDCLK,
                   PSDNCAS: SDNCAS, PSDNEn: $neN, PSDNRAS: SDNRAS, PSDNWE: SDNWE {
-                const ADDRESS_LINES: u8 = 12;
+
                 const NUMBER_INTERNAL_BANKS: u8 = $nInternalB;
             }
         )+
@@ -109,22 +145,46 @@ macro_rules! impl_32bit_sdram {
 
 #[cfg(feature = "sdram")]
 impl_16bit_sdram! {
+    // 16-bit SDRAM with 11 address lines, BA0 only
+    SdramBank1: [SDCKE0, SDNE0, 2; AddressPins11 []],
+    SdramBank2: [SDCKE1, SDNE1, 2; AddressPins11 []],
+    // 16-bit SDRAM with 11 address lines, BA0 and BA1
+    SdramBank1: [SDCKE0, SDNE0, 4, PBA1: BA1; AddressPins11 []],
+    SdramBank2: [SDCKE1, SDNE1, 4, PBA1: BA1; AddressPins11 []],
     // 16-bit SDRAM with 12 address lines, BA0 only
-    SdramBank1: [SDCKE0, SDNE0, 2],
-    SdramBank2: [SDCKE1, SDNE1, 2],
+    SdramBank1: [SDCKE0, SDNE0, 2; AddressPins12 [PA11: A11]],
+    SdramBank2: [SDCKE1, SDNE1, 2; AddressPins12 [PA11: A11]],
     // 16-bit SDRAM with 12 address lines, BA0 and BA1
-    SdramBank1: [SDCKE0, SDNE0, 4, PBA1, BA1],
-    SdramBank2: [SDCKE1, SDNE1, 4, PBA1, BA1]
+    SdramBank1: [SDCKE0, SDNE0, 4, PBA1: BA1; AddressPins12 [PA11: A11]],
+    SdramBank2: [SDCKE1, SDNE1, 4, PBA1: BA1; AddressPins12 [PA11: A11]],
+    // 16-bit SDRAM with 13 address lines, BA0 only
+    SdramBank1: [SDCKE0, SDNE0, 2; AddressPins13 [PA11: A11, PA12: A12]],
+    SdramBank2: [SDCKE1, SDNE1, 2; AddressPins13 [PA11: A11, PA12: A12]],
+    // 16-bit SDRAM with 13 address lines, BA0 and BA1
+    SdramBank1: [SDCKE0, SDNE0, 4, PBA1: BA1; AddressPins13 [PA11: A11, PA12: A12]],
+    SdramBank2: [SDCKE1, SDNE1, 4, PBA1: BA1; AddressPins13 [PA11: A11, PA12: A12]]
 }
 
 #[cfg(feature = "sdram")]
 impl_32bit_sdram! {
+    // 32-bit SDRAM with 11 address lines, BA0 only
+    SdramBank1: [SDCKE0, SDNE0, 2; AddressPins11 []],
+    SdramBank2: [SDCKE1, SDNE1, 2; AddressPins11 []],
+    // 32-bit SDRAM with 11 address lines, BA0 and BA1
+    SdramBank1: [SDCKE0, SDNE0, 4, PBA1: BA1; AddressPins11 []],
+    SdramBank2: [SDCKE1, SDNE1, 4, PBA1: BA1; AddressPins11 []],
     // 32-bit SDRAM with 12 address lines, BA0 only
-    SdramBank1: [SDCKE0, SDNE0, 2],
-    SdramBank2: [SDCKE1, SDNE1, 2],
+    SdramBank1: [SDCKE0, SDNE0, 2; AddressPins12 [PA11: A11]],
+    SdramBank2: [SDCKE1, SDNE1, 2; AddressPins12 [PA11: A11]],
     // 32-bit SDRAM with 12 address lines, BA0 and BA1
-    SdramBank1: [SDCKE0, SDNE0, 4, PBA1, BA1],
-    SdramBank2: [SDCKE1, SDNE1, 4, PBA1, BA1]
+    SdramBank1: [SDCKE0, SDNE0, 4, PBA1: BA1; AddressPins12 [PA11: A11]],
+    SdramBank2: [SDCKE1, SDNE1, 4, PBA1: BA1; AddressPins12 [PA11: A11]],
+    // 32-bit SDRAM with 13 address lines, BA0 only
+    SdramBank1: [SDCKE0, SDNE0, 2; AddressPins13 [PA11: A11, PA12: A12]],
+    SdramBank2: [SDCKE1, SDNE1, 2; AddressPins13 [PA11: A11, PA12: A12]],
+    // 32-bit SDRAM with 13 address lines, BA0 and BA1
+    SdramBank1: [SDCKE0, SDNE0, 4, PBA1: BA1; AddressPins13 [PA11: A11, PA12: A12]],
+    SdramBank2: [SDCKE1, SDNE1, 4, PBA1: BA1; AddressPins13 [PA11: A11, PA12: A12]]
 }
 
 /// Marks a type as an A0 pin
