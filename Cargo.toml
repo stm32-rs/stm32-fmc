@@ -22,6 +22,9 @@ optional = true
 [dependencies]
 embedded-hal = "0.2.4"
 
+[dev-dependencies]
+paste = "1.0"
+
 [features]
 sdram = []
 default = ["sdram"]
