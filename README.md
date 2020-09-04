@@ -11,19 +11,29 @@ Currently only SDRAM functions are implemented.
 
 **This crate is a work in progress! Contributions very welcome**
 
+## Implementing
+
+(If your HAL already implements FMC, you can skip this)
+
+See the [docs](https://docs.rs/stm32-fmc)
+
+# Usage
+
 ### SDRAM
 
-The hardware supports up to 2 external SDRAM devices. This library
-currently only supports 1, although it may be on either bank 1 or
-2.
+The FMC peripheral supports up to 2 external SDRAM devices. This crate currently
+only supports 1, although it may be on either bank 1 or 2.
 
-To pass pins to
-[`Sdram::new`](https://docs.rs/stm32-fmc/latest/stm32_fmc/struct.Sdram.html#method.new),
-create a tuple with the following ordering:
+External memories are defined by
+[`SdramChip`](https://docs.rs/stm32-fmc/latest/stm32_fmc/trait.SdramChip.html)
+implementations. There are several examples in the [`devices`](src/devices/)
+folder, or you can make your own.
+
+To pass pins to a constructor, create a tuple with the following ordering:
 
 ```rust
 let pins = (
-    // A0-A11
+    // A0-A12
     pa0, ...
     // BA0-BA1
     // D0-D31
@@ -37,8 +47,38 @@ let pins = (
 );
 ```
 
-External memories are defined by `SdramChip` implementations. There are already
-several examples in the `devices/` folder.
+You can leave out address/data pins not used by your memory.
+
+#### Constructing
+
+If you are using a HAL, see the HAL documentation.
+
+Otherwise you can implement
+[`FmcPeripheral`](https://docs.rs/stm32-fmc/latest/stm32_fmc/trait.FmcPeripheral.html)
+yourself then use
+[`Sdram::new`](https://docs.rs/stm32-fmc/latest/stm32_fmc/struct.Sdram.html#method.new)
+/
+[`Sdram::new_unchecked`](https://docs.rs/stm32-fmc/latest/stm32_fmc/struct.Sdram.html#method.new_unchecked)
+directly.
+
+#### Initialising
+
+Once you have an `Sdram` type, you can:
+
+* Initialise it by calling
+  [`init`](https://docs.rs/stm32-fmc/latest/stm32_fmc/struct.Sdram.html#method.init). This
+  returns a raw pointer
+* Convert the raw pointer to a sized slice using `from_raw_parts_mut`
+
+```rust
+let ram = unsafe {
+    // Initialise controller and SDRAM
+    let ram_ptr: *mut u32 = sdram.init(&mut delay);
+
+    // 32 MByte = 256Mbit SDRAM = 8M u32 words
+    slice::from_raw_parts_mut(ram_ptr, 8 * 1024 * 1024)
+};
+```
 
 ### NOR Flash/PSRAM
 
@@ -47,60 +87,6 @@ TODO
 ### NAND Flash
 
 TODO
-
-## Implementing
-
-See the [docs](https://docs.rs/stm32-fmc)
-
-<!-- ```rust -->
-<!--     let mut sdram = -->
-<!--         stm32_fmc::Sdram::new(fmc, fmc_io, is42s32800g_6::Is42s32800g {}); -->
-<!-- ``` -->
-
-<!-- Or use new_unchecked: -->
-
-<!-- ```rust -->
-<!--     let mut sdram = -->
-<!--         stm32_fmc::Sdram::new_unchecked(fmc, is42s32800g_6::Is42s32800g {}); -->
-<!-- ``` -->
-
-
-<!-- ### IO Setup -->
-
-<!-- IO is constructed by configuring each pin as high speed and -->
-<!-- assigning to the FMC block. -->
-
-<!-- ```rust -->
-<!--     let pa0 = gpioa.pa0.into_push_pull_output() -->
-<!--         .set_speed(Speed::VeryHigh) -->
-<!--         .into_alternate_af12() -->
-<!--         .internal_pull_up(true); -->
-<!-- ``` -->
-
-<!-- Then contruct a PinSdram type from the required pins. They must be -->
-<!-- specified in the order given here. -->
-
-
-<!-- See the [examples](examples) for an ergonomic method using macros. -->
-
-# Usage
-
-Follow the documention in your HAL to initialise the FMC.
-
-Once you have an `Sdram` type from your HAL, you can:
-
-* Initialise it, which returns a raw pointer
-* Convert the raw pointer to a sized slice using `from_raw_parts_mut`
-
-```rust
-let ram = unsafe {
-    // Initialise controller and SDRAM
-    let ram_ptr: *mut u32 = sdram.init(&mut delay, ccdr.clocks);
-
-    // 32 MByte = 256Mbit SDRAM = 8M u32 words
-    slice::from_raw_parts_mut(ram_ptr, 8 * 1024 * 1024)
-};
-```
 
 ## Releasing
 
