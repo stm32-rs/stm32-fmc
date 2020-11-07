@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+## [v0.2.1] 2020-11-07
+
+* Export SdramConfiguration and SdramTiming structs to fix implementing
+  SdramChip outside the crate https://github.com/stm32-rs/stm32-fmc/pull/2
+
 ## [v0.2.0] 2020-08-28
 
 * *Breaking*: Use a generic type to support pin checking on SDRAMs with 11 and
@@ -12,5 +17,6 @@
 * Don't require type to be `Sync` in order to implement FmcPeripheral
 * Begin Changelog
 
-[Unreleased]: https://github.com/stm32-rs/stm32h7xx-hal/compare/v0.2.0...HEAD
-[v0.2.0]: https://github.com/stm32-rs/stm32h7xx-hal/compare/v0.1.2...v0.2.0
+[Unreleased]: https://github.com/stm32-rs/stm32-fmc/compare/v0.2.1...HEAD
+[v0.2.1]: https://github.com/stm32-rs/stm32-fmc/compare/v0.2.0...v0.2.1
+[v0.2.0]: https://github.com/stm32-rs/stm32-fmc/compare/v0.1.2...v0.2.0
