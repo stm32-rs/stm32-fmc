@@ -140,7 +140,10 @@ pub use fmc::*;
 #[cfg(feature = "sdram")]
 mod sdram;
 #[cfg(feature = "sdram")]
-pub use sdram::{PinsSdram, Sdram, SdramChip, SdramPinSet, SdramTargetBank};
+pub use sdram::{
+    FmcSdramConfiguration, FmcSdramTiming, PinsSdram, Sdram, SdramChip,
+    SdramPinSet, SdramTargetBank,
+};
 
 /// Memory device definitions
 pub mod devices;
