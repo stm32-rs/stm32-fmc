@@ -5,7 +5,7 @@
 
 /// Speed Grade 6
 pub mod mt48lc4m32b2_6 {
-    use crate::sdram::{SdramConfiguration, SdramTiming, SdramChip};
+    use crate::sdram::{SdramChip, SdramConfiguration, SdramTiming};
 
     const BURST_LENGTH_1: u16 = 0x0000;
     const BURST_LENGTH_2: u16 = 0x0001;
