@@ -141,7 +141,7 @@ pub use fmc::*;
 mod sdram;
 #[cfg(feature = "sdram")]
 pub use sdram::{
-    FmcSdramConfiguration, FmcSdramTiming, PinsSdram, Sdram, SdramChip,
+    SdramConfiguration, SdramTiming, PinsSdram, Sdram, SdramChip,
     SdramPinSet, SdramTargetBank,
 };
 
