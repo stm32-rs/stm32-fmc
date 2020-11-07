@@ -13,7 +13,7 @@ use crate::ral::{fmc, modify_reg, write_reg};
 
 /// FMC SDRAM Configuration Structure definition
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub struct FmcSdramConfiguration {
+pub struct SdramConfiguration {
     /// Number of bits of column address
     pub column_bits: u8,
     /// Number of bits of column address
@@ -34,7 +34,7 @@ pub struct FmcSdramConfiguration {
 
 /// FMC SDRAM Timing parameters structure definition
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub struct FmcSdramTiming {
+pub struct SdramTiming {
     /// Time between applying a valid clock and any command other than
     /// COMMAND INHIBIT or NOP
     pub startup_delay_ns: u32,
@@ -62,10 +62,10 @@ pub trait SdramChip {
     const MODE_REGISTER: u16;
 
     /// SDRAM controller configuration
-    const CONFIG: FmcSdramConfiguration;
+    const CONFIG: SdramConfiguration;
 
     /// Timing parameters
-    const TIMING: FmcSdramTiming;
+    const TIMING: SdramTiming;
 }
 
 /// SDRAM Controller
@@ -338,8 +338,8 @@ impl<IC: SdramChip, FMC: FmcPeripheral> Sdram<FMC, IC> {
     /// For example, see RM0433 rev 7 Section 22.9.3
     unsafe fn set_features_timings(
         &mut self,
-        config: FmcSdramConfiguration,
-        timing: FmcSdramTiming,
+        config: SdramConfiguration,
+        timing: SdramTiming,
         sd_clock_divide: u32,
     ) {
         // Features ---- SDCR REGISTER

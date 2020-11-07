@@ -88,6 +88,14 @@ TODO
 
 TODO
 
+### Implementing a new device
+
+If you end up depending on a fork or a newer version of this crate than the
+HAL crate for your device, you can override the version pulled in by the
+external crate using a `[patch]` section in your `Cargo.toml`, as described
+in the
+[Cargo Book](https://doc.rust-lang.org/cargo/reference/overriding-dependencies.html#the-patch-section).
+
 ## Releasing
 
 * Update Cargo.toml

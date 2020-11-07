@@ -5,7 +5,7 @@
 
 /// Speed Grade 6
 pub mod mt48lc4m32b2_6 {
-    use crate::sdram::{FmcSdramConfiguration, FmcSdramTiming, SdramChip};
+    use crate::sdram::{SdramChip, SdramConfiguration, SdramTiming};
 
     const BURST_LENGTH_1: u16 = 0x0000;
     const BURST_LENGTH_2: u16 = 0x0001;
@@ -32,7 +32,7 @@ pub mod mt48lc4m32b2_6 {
             | WRITEBURST_MODE_SINGLE;
 
         /// Timing Parameters
-        const TIMING: FmcSdramTiming = FmcSdramTiming {
+        const TIMING: SdramTiming = SdramTiming {
             startup_delay_ns: 100_000,    // 100 µs
             max_sd_clock_hz: 100_000_000, // 100 MHz
             refresh_period_ns: 15_625,    // 64ms / (4096 rows) = 15625ns
@@ -45,7 +45,7 @@ pub mod mt48lc4m32b2_6 {
         };
 
         /// SDRAM controller configuration
-        const CONFIG: FmcSdramConfiguration = FmcSdramConfiguration {
+        const CONFIG: SdramConfiguration = SdramConfiguration {
             column_bits: 9,
             row_bits: 12,
             memory_data_width: 32, // 32-bit
