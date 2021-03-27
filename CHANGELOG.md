@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [v0.2.2] 2021-03-27
+
+* Implement AS4C16M32MSA-6BIN device #3
+
 ## [v0.2.1] 2020-11-07
 
 * Export SdramConfiguration and SdramTiming structs to fix implementing
@@ -17,6 +21,7 @@
 * Don't require type to be `Sync` in order to implement FmcPeripheral
 * Begin Changelog
 
-[Unreleased]: https://github.com/stm32-rs/stm32-fmc/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/stm32-rs/stm32-fmc/compare/v0.2.2...HEAD
+[v0.2.1]: https://github.com/stm32-rs/stm32-fmc/compare/v0.2.1...v0.2.2
 [v0.2.1]: https://github.com/stm32-rs/stm32-fmc/compare/v0.2.0...v0.2.1
 [v0.2.0]: https://github.com/stm32-rs/stm32-fmc/compare/v0.1.2...v0.2.0
