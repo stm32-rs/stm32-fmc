@@ -1,8 +1,6 @@
 /// Micron MT48LC4M32B2 SDRAM
 #[allow(unused)]
 
-/// UNTESTED!
-
 /// Speed Grade 6
 pub mod mt48lc4m32b2_6 {
     use crate::sdram::{SdramChip, SdramConfiguration, SdramTiming};
