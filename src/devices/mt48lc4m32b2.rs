@@ -1,8 +1,6 @@
 /// Micron MT48LC4M32B2 SDRAM
 #[allow(unused)]
 
-/// UNTESTED!
-
 /// Speed Grade 6
 pub mod mt48lc4m32b2_6 {
     use crate::sdram::{SdramChip, SdramConfiguration, SdramTiming};
@@ -46,7 +44,7 @@ pub mod mt48lc4m32b2_6 {
 
         /// SDRAM controller configuration
         const CONFIG: SdramConfiguration = SdramConfiguration {
-            column_bits: 9,
+            column_bits: 8,
             row_bits: 12,
             memory_data_width: 32, // 32-bit
             internal_banks: 4,     // 4 internal banks
