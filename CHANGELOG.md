@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [v0.2.3] 2021-05-25
+
+* Fix the number of columns for the MT48LC4M32B2 device #4
+
 ## [v0.2.2] 2021-03-27
 
 * Implement AS4C16M32MSA-6BIN device #3
@@ -21,7 +25,8 @@
 * Don't require type to be `Sync` in order to implement FmcPeripheral
 * Begin Changelog
 
-[Unreleased]: https://github.com/stm32-rs/stm32-fmc/compare/v0.2.2...HEAD
-[v0.2.1]: https://github.com/stm32-rs/stm32-fmc/compare/v0.2.1...v0.2.2
+[Unreleased]: https://github.com/stm32-rs/stm32-fmc/compare/v0.2.3...HEAD
+[v0.2.3]: https://github.com/stm32-rs/stm32-fmc/compare/v0.2.2...v0.2.3
+[v0.2.2]: https://github.com/stm32-rs/stm32-fmc/compare/v0.2.1...v0.2.2
 [v0.2.1]: https://github.com/stm32-rs/stm32-fmc/compare/v0.2.0...v0.2.1
 [v0.2.0]: https://github.com/stm32-rs/stm32-fmc/compare/v0.1.2...v0.2.0
