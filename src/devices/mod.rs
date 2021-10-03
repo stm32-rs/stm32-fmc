@@ -1,6 +1,11 @@
 #![allow(missing_docs)]
 
 #[cfg(feature = "sdram")]
+mod as4c4m16sa;
+#[cfg(feature = "sdram")]
+pub use as4c4m16sa::*;
+
+#[cfg(feature = "sdram")]
 mod as4c16m32msa;
 #[cfg(feature = "sdram")]
 pub use as4c16m32msa::*;
