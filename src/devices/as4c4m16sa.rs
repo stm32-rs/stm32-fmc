@@ -51,11 +51,11 @@ pub mod as4c4m16sa_6 {
             max_sd_clock_hz: 166_000_000, // 166 MHz
             refresh_period_ns: 15_625,    // 64ms / (4096 rows) = 15625ns
             mode_register_to_active: 2,   // tMRD = 2 cycles
-            exit_self_refresh: 11,        // tXSR = 62ns, cycles = ceil(166000000*(62*10^(-9)))
-            active_to_precharge: 7,       // tRAS = 42ns cycles = ceil(166000000*(42*10^(-9)))
-            row_cycle: 10,                // tRC = 60ns cycles = ceil(166000000*(60*10^(-9)))
-            row_precharge: 3,             // tRP = 18ns cycles = ceil(166000000*(18*10^(-9)))
-            row_to_column: 3,             // tRCD = 18ns cycles = ceil(166000000*(18*10^(-9)))
+            exit_self_refresh: 11, // tXSR = 62ns, cycles = ceil(166000000*(62*10^(-9)))
+            active_to_precharge: 7, // tRAS = 42ns cycles = ceil(166000000*(42*10^(-9)))
+            row_cycle: 10, // tRC = 60ns cycles = ceil(166000000*(60*10^(-9)))
+            row_precharge: 3, // tRP = 18ns cycles = ceil(166000000*(18*10^(-9)))
+            row_to_column: 3, // tRCD = 18ns cycles = ceil(166000000*(18*10^(-9)))
         };
 
         /// SDRAM controller configuration
