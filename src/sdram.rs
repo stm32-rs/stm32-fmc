@@ -12,6 +12,8 @@ use crate::FmcPeripheral;
 use crate::ral::{fmc, modify_reg, write_reg};
 
 /// FMC SDRAM Configuration Structure definition
+///
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct SdramConfiguration {
     /// Number of bits of column address
@@ -33,6 +35,7 @@ pub struct SdramConfiguration {
 }
 
 /// FMC SDRAM Timing parameters structure definition
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct SdramTiming {
     /// Time between applying a valid clock and any command other than
@@ -84,6 +87,7 @@ pub struct Sdram<FMC, IC> {
 }
 
 /// SDRAM Commands
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Clone, Copy, Debug, PartialEq)]
 #[allow(unused)]
 enum SdramCommand {
@@ -97,6 +101,7 @@ enum SdramCommand {
 }
 /// Target bank for SDRAM commands
 #[derive(Clone, Copy, Debug, PartialEq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[allow(unused)]
 pub enum SdramTargetBank {
     /// Targeting the 1st SDRAM bank
@@ -126,6 +131,7 @@ pub trait SdramPinSet {
 
 /// Type to mark SDRAM on Bank 1 of FMC controller
 #[derive(Clone, Copy, Debug)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct SdramBank1;
 impl SdramPinSet for SdramBank1 {
     const TARGET: SdramTargetBank = SdramTargetBank::Bank1;
@@ -134,6 +140,7 @@ impl SdramPinSet for SdramBank1 {
 
 /// Type to mark SDRAM on Bank 2 of FMC controller
 #[derive(Clone, Copy, Debug)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct SdramBank2;
 impl SdramPinSet for SdramBank2 {
     const TARGET: SdramTargetBank = SdramTargetBank::Bank2;

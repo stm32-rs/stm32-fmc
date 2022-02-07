@@ -1,3 +1,6 @@
+#[cfg(all(feature = "defmt", feature = "log"))]
+compile_error!("You may not enable both `defmt` and `log` features.");
+
 #[cfg(feature = "log")]
 #[macro_use]
 mod log {
@@ -6,7 +9,15 @@ mod log {
     }
 }
 
-#[cfg(not(feature = "log"))]
+#[cfg(feature = "defmt")]
+#[macro_use]
+mod log {
+    macro_rules! fmc_log {
+        (trace, $($arg:expr),*) => { ::defmt::trace!($($arg),*); };
+    }
+}
+
+#[cfg(all(not(feature = "log"), not(feature = "defmt")))]
 #[macro_use]
 mod log {
     macro_rules! fmc_log {
