@@ -30,5 +30,6 @@ embedded-hal = "0.2.4"
 paste = "1.0"
 
 [features]
+trace-register-values = []
 sdram = []
 default = ["sdram"]
