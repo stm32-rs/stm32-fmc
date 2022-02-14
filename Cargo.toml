@@ -19,6 +19,10 @@ version = "^0.4.8"
 default-features = false
 optional = true
 
+[dependencies.defmt]
+version = "0.3"
+optional = true
+
 [dependencies]
 embedded-hal = "0.2.4"
 
@@ -26,5 +30,6 @@ embedded-hal = "0.2.4"
 paste = "1.0"
 
 [features]
+trace-register-values = []
 sdram = []
 default = ["sdram"]

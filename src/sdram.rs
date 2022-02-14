@@ -12,6 +12,8 @@ use crate::FmcPeripheral;
 use crate::ral::{fmc, modify_reg, write_reg};
 
 /// FMC SDRAM Configuration Structure definition
+///
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct SdramConfiguration {
     /// Number of bits of column address
@@ -33,6 +35,7 @@ pub struct SdramConfiguration {
 }
 
 /// FMC SDRAM Timing parameters structure definition
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct SdramTiming {
     /// Time between applying a valid clock and any command other than
@@ -84,6 +87,7 @@ pub struct Sdram<FMC, IC> {
 }
 
 /// SDRAM Commands
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Clone, Copy, Debug, PartialEq)]
 #[allow(unused)]
 enum SdramCommand {
@@ -97,6 +101,7 @@ enum SdramCommand {
 }
 /// Target bank for SDRAM commands
 #[derive(Clone, Copy, Debug, PartialEq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[allow(unused)]
 pub enum SdramTargetBank {
     /// Targeting the 1st SDRAM bank
@@ -126,6 +131,7 @@ pub trait SdramPinSet {
 
 /// Type to mark SDRAM on Bank 1 of FMC controller
 #[derive(Clone, Copy, Debug)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct SdramBank1;
 impl SdramPinSet for SdramBank1 {
     const TARGET: SdramTargetBank = SdramTargetBank::Bank1;
@@ -134,6 +140,7 @@ impl SdramPinSet for SdramBank1 {
 
 /// Type to mark SDRAM on Bank 2 of FMC controller
 #[derive(Clone, Copy, Debug)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct SdramBank2;
 impl SdramPinSet for SdramBank2 {
     const TARGET: SdramTargetBank = SdramTargetBank::Bank2;
@@ -190,6 +197,8 @@ impl<IC: SdramChip, FMC: FmcPeripheral> Sdram<FMC, IC> {
             PINS::NUMBER_INTERNAL_BANKS >= IC::CONFIG.internal_banks,
             "Not enough bank address pins to access all internal banks"
         );
+
+        fmc_trace!("Bank selected via pins: {}.", BANK::TARGET);
 
         Sdram {
             target_bank: BANK::TARGET,
@@ -293,6 +302,8 @@ impl<IC: SdramChip, FMC: FmcPeripheral> Sdram<FMC, IC> {
 
             // Step 2: SDRAM powerup delay
             let startup_delay_us = (IC::TIMING.startup_delay_ns + 999) / 1000;
+            fmc_trace!("Startup delay: {} us", startup_delay_us);
+
             delay.delay_us(startup_delay_us.try_into().unwrap());
 
             // Step 3: Send a PALL (precharge all) command
@@ -315,11 +326,74 @@ impl<IC: SdramChip, FMC: FmcPeripheral> Sdram<FMC, IC> {
                 "Impossible configuration for H7 FMC Controller"
             );
 
+            fmc_trace!("SDRTR: count {}", refresh_counter_top);
+
             modify_reg!(
                 fmc,
                 self.regs.global(),
                 SDRTR,
                 COUNT: refresh_counter_top as u32
+            );
+        }
+
+        #[cfg(feature = "trace-register-values")]
+        {
+            use crate::read_reg;
+            fmc_trace!(
+                "BCR1: 0x{:x}",
+                read_reg!(fmc, self.regs.global(), BCR1)
+            );
+            fmc_trace!(
+                "BTR1: 0x{:x}",
+                read_reg!(fmc, self.regs.global(), BTR1)
+            );
+            fmc_trace!(
+                "BCR2: 0x{:x}",
+                read_reg!(fmc, self.regs.global(), BCR2)
+            );
+            fmc_trace!(
+                "BTR2: 0x{:x}",
+                read_reg!(fmc, self.regs.global(), BTR2)
+            );
+            fmc_trace!(
+                "BCR3: 0x{:x}",
+                read_reg!(fmc, self.regs.global(), BCR3)
+            );
+            fmc_trace!(
+                "BTR3: 0x{:x}",
+                read_reg!(fmc, self.regs.global(), BTR3)
+            );
+            fmc_trace!(
+                "BCR4: 0x{:x}",
+                read_reg!(fmc, self.regs.global(), BCR4)
+            );
+            fmc_trace!(
+                "BTR4: 0x{:x}",
+                read_reg!(fmc, self.regs.global(), BTR4)
+            );
+            fmc_trace!(
+                "SDCR1: 0x{:x}",
+                read_reg!(fmc, self.regs.global(), SDCR1)
+            );
+            fmc_trace!(
+                "SDCR2: 0x{:x}",
+                read_reg!(fmc, self.regs.global(), SDCR2)
+            );
+            fmc_trace!(
+                "SDTR1: 0x{:x}",
+                read_reg!(fmc, self.regs.global(), SDTR1)
+            );
+            fmc_trace!(
+                "SDTR2: 0x{:x}",
+                read_reg!(fmc, self.regs.global(), SDTR2)
+            );
+            fmc_trace!(
+                "SDCMR: 0x{:x}",
+                read_reg!(fmc, self.regs.global(), SDCMR)
+            );
+            fmc_trace!(
+                "SDRTR: 0x{:x}",
+                read_reg!(fmc, self.regs.global(), SDRTR)
             );
         }
 
@@ -418,6 +492,7 @@ impl<IC: SdramChip, FMC: FmcPeripheral> Sdram<FMC, IC> {
                     TRC: timing.row_cycle - 1,
                     TRP: timing.row_precharge - 1
         );
+
         modify_reg_banked!(fmc, self.regs.global(),
                            self.target_bank, SDTR1, SDTR2,
                            // fields
@@ -465,6 +540,16 @@ impl<IC: SdramChip, FMC: FmcPeripheral> Sdram<FMC, IC> {
             CTB1: b1,
             CTB2: b2,
             MODE: cmd
+        );
+
+        #[cfg(feature = "trace-register-values")]
+        fmc_trace!(
+            "Modifying SDCMR: mrd {}, nrfs {}, ctb1 {}, ctb2 {}, mode {}",
+            mode_reg,
+            number_refresh,
+            b1,
+            b2,
+            cmd
         );
     }
 }

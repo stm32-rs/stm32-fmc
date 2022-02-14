@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+* Add support for defmt logging. Add support for dumping register contents at the end of init function. #7
+
 ## [v0.2.4] 2021-10-05
 
 * Add AS4C4M16SA-6 device #5

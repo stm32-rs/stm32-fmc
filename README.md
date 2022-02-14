@@ -88,6 +88,14 @@ TODO
 
 TODO
 
+### Troubleshooting
+The library automatically does some trace-level logging either via `log` or via `defmt`. 
+To enable such logging, enable either the `log` or `defmt` feature in your `Cargo.toml`.
+
+For debugging the SDRAM register contents, the library provides additional feature `trace-register-values`, which when enabled causes the init function to log the register contents to the trace level. 
+This is useful for example when you want to compare the register values between `stm32-fmc` and CubeMX code. 
+Note that one of the logging features (`log`/`defmt`) must be enabled for this to work.
+
 ### Implementing a new device
 
 If you end up depending on a fork or a newer version of this crate than the

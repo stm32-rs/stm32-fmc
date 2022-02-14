@@ -4,6 +4,7 @@
 ///
 /// For example, see RM0433 rev 7 Figure 98.
 #[derive(Clone, Copy, Debug, PartialEq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[allow(unused)]
 pub enum FmcBank {
     /// Bank1: NOR/PSRAM/SRAM
