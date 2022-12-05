@@ -145,6 +145,13 @@ pub use sdram::{
     SdramTargetBank, SdramTiming,
 };
 
+#[cfg(feature = "nand")]
+mod nand;
+#[cfg(feature = "nand")]
+pub use nand::device as nand_device;
+#[cfg(feature = "nand")]
+pub use nand::{Nand, NandChip, NandConfiguration, NandTiming, PinsNand};
+
 /// Memory device definitions
 pub mod devices;
 
