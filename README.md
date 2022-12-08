@@ -63,7 +63,9 @@ directly.
 
 #### Initialising
 
-Once you have an `Sdram` type, you can:
+Once you have an
+[`Sdram`](https://docs.rs/stm32-fmc/latest/stm32_fmc/struct.Sdram.html)
+instance, you can:
 
 * Initialise it by calling
   [`init`](https://docs.rs/stm32-fmc/latest/stm32_fmc/struct.Sdram.html#method.init). This
@@ -118,7 +120,9 @@ directly.
 
 #### Initialising
 
-Once you have an `Nand` type you should initialise it by calling
+Once you have an
+[`Nand`](https://docs.rs/stm32-fmc/latest/stm32_fmc/struct.Nand.html) instance
+you should initialise it by calling
 [`init`](https://docs.rs/stm32-fmc/latest/stm32_fmc/struct.Nand.html#method.init). This
 returns a
 [`NandDevice`](https://docs.rs/stm32-fmc/latest/stm32_fmc/nand_device/struct.NandDevice.html)
