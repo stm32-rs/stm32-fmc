@@ -51,7 +51,7 @@
 //!
 //! ## Wrap constructor methods
 //!
-//! Each memory controller type ([`Sdram`](Sdram), `Nand` (todo), ..) provides both
+//! Each memory controller type ([`Sdram`](Sdram), [`Nand`](Nand), ..) provides both
 //! `new` and `new_unchecked` methods.
 //!
 //! For the convenience of users, you may want to wrap these with your `new` method,

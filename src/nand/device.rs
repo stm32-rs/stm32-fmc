@@ -276,7 +276,8 @@ impl NandDevice {
     /// This method starts a Page Read operation but does not include the data
     /// phase. This method is useful when DMA is used for the data phase.
     ///
-    /// For a method that completes the entire transaction see [page_read].
+    /// For a method that completes the entire transaction see
+    /// [`page_read`](Self::page_read).
     pub fn start_page_read(&mut self, address: usize, spare: bool) {
         unsafe {
             write_volatile_sync(self.common_command, 0x00);

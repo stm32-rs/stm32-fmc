@@ -124,13 +124,16 @@ impl<IC: NandChip, FMC: FmcPeripheral> Nand<FMC, IC> {
         }
     }
 
-    /// Initialise NAND instance. Delay is used to wait
+    /// Initialise NAND instance. `delay` is used to wait 1µs after enabling the
+    /// memory controller.
     ///
-    /// Returns a [`NandDevice`] instance
+    /// Returns a [`NandDevice`](device::NandDevice) instance.
     ///
     /// # Panics
     ///
     /// * Panics if any setting in `IC::CONFIG` cannot be achieved
+    /// * Panics if the FMC Kernel Clock is too fast to achieve the timing
+    /// required by the NAND device
     pub fn init<D>(&mut self, delay: &mut D) -> device::NandDevice
     where
         D: DelayUs<u8>,
