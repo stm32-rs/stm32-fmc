@@ -340,3 +340,53 @@ impl NandDevice {
         }
     }
 }
+
+/// Methods to allow users to implement their own commands using `unsafe`.
+///
+impl NandDevice {
+    /// Return a Raw Pointer to the common command space. This memory-mapped
+    /// address is used to write command phase of NAND device transactions.
+    ///
+    /// It is recommended to use
+    /// [`ptr::write_volatile`](https://doc.rust-lang.org/std/ptr/fn.write_volatile.html)
+    /// to write to this pointer. Depending on the memory map in use, you may
+    /// need to ensure the write is committed by using
+    /// [`core::atomic::sync::fence`](https://doc.rust-lang.org/core/sync/atomic/fn.fence.html).
+    pub fn common_command(&mut self) -> *mut u8 {
+        self.common_command
+    }
+    /// Return a Raw Pointer to the attribute command space. This memory-mapped
+    /// address is used to write command phase of NAND device transactions.
+    ///
+    /// It is recommended to use
+    /// [`ptr::write_volatile`](https://doc.rust-lang.org/std/ptr/fn.write_volatile.html)
+    /// to write to this pointer. Depending on the memory map in use, you may
+    /// need to ensure the write is committed by using
+    /// [`core::atomic::sync::fence`](https://doc.rust-lang.org/core/sync/atomic/fn.fence.html).
+    pub fn attribute_command(&mut self) -> *mut u8 {
+        self.attribute_command
+    }
+    /// Return a Raw Pointer to the common address space. This memory-mapped
+    /// address is used to write the address phase of NAND device transactions.
+    ///
+    /// It is recommended to use
+    /// [`ptr::write_volatile`](https://doc.rust-lang.org/std/ptr/fn.write_volatile.html)
+    /// to write to this pointer. Depending on the memory map in use, you may
+    /// need to ensure the write is committed by using
+    /// [`core::atomic::sync::fence`](https://doc.rust-lang.org/core/sync/atomic/fn.fence.html).
+    pub fn common_address(&mut self) -> *mut u8 {
+        self.common_address
+    }
+    /// Return a Raw Pointer to the common data space. This memory-mapped
+    /// address is used to write or read the data phase of NAND device
+    /// transactions.
+    ///
+    /// It is recommended to use
+    /// [`ptr::write_volatile`](https://doc.rust-lang.org/std/ptr/fn.write_volatile.html)
+    /// to write to this pointer. Depending on the memory map in use, you may
+    /// need to ensure the write is committed by using
+    /// [`core::atomic::sync::fence`](https://doc.rust-lang.org/core/sync/atomic/fn.fence.html).
+    pub fn common_data(&mut self) -> *mut u8 {
+        self.common_data
+    }
+}
