@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [v0.3.0] 2022-12-29
+
 * Parallel NAND Flash is supported with the `nand ` feature flag [#8]
 * Add S34ML08G3 NAND [#8]
 * Add support for defmt logging. Add support for dumping register contents at the end of init function. [#7]
@@ -33,7 +35,8 @@
 * Don't require type to be `Sync` in order to implement FmcPeripheral
 * Begin Changelog
 
-[Unreleased]: https://github.com/stm32-rs/stm32-fmc/compare/v0.2.4...HEAD
+[Unreleased]: https://github.com/stm32-rs/stm32-fmc/compare/v0.3.0...HEAD
+[v0.3.0]: https://github.com/stm32-rs/stm32-fmc/compare/v0.2.4...v0.3.0
 [v0.2.4]: https://github.com/stm32-rs/stm32-fmc/compare/v0.2.3...v0.2.4
 [v0.2.3]: https://github.com/stm32-rs/stm32-fmc/compare/v0.2.2...v0.2.3
 [v0.2.2]: https://github.com/stm32-rs/stm32-fmc/compare/v0.2.1...v0.2.2
