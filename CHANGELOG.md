@@ -2,19 +2,21 @@
 
 ## [Unreleased]
 
-* Add support for defmt logging. Add support for dumping register contents at the end of init function. #7
+* Parallel NAND Flash is supported with the `nand ` feature flag [#8]
+* Add S34ML08G3 NAND [#8]
+* Add support for defmt logging. Add support for dumping register contents at the end of init function. [#7]
 
 ## [v0.2.4] 2021-10-05
 
-* Add AS4C4M16SA-6 device #5
+* Add AS4C4M16SA-6 device [#5]
 
 ## [v0.2.3] 2021-05-25
 
-* Fix the number of columns for the MT48LC4M32B2 device #4
+* Fix the number of columns for the MT48LC4M32B2 device [#4]
 
 ## [v0.2.2] 2021-03-27
 
-* Implement AS4C16M32MSA-6BIN device #3
+* Implement AS4C16M32MSA-6BIN device [#3]
 
 ## [v0.2.1] 2020-11-07
 
@@ -37,3 +39,9 @@
 [v0.2.2]: https://github.com/stm32-rs/stm32-fmc/compare/v0.2.1...v0.2.2
 [v0.2.1]: https://github.com/stm32-rs/stm32-fmc/compare/v0.2.0...v0.2.1
 [v0.2.0]: https://github.com/stm32-rs/stm32-fmc/compare/v0.1.2...v0.2.0
+
+[#3]: https://github.com/stm32-rs/stm32h7xx-hal/pull/3
+[#4]: https://github.com/stm32-rs/stm32h7xx-hal/pull/4
+[#5]: https://github.com/stm32-rs/stm32h7xx-hal/pull/5
+[#7]: https://github.com/stm32-rs/stm32h7xx-hal/pull/7
+[#8]: https://github.com/stm32-rs/stm32h7xx-hal/pull/8
