@@ -162,9 +162,15 @@ in the
 
 ```
 git commit -am 'v0.2.0'
-git push origin
+git push --set-upstream origin v0.2.0
+```
+
+Create a PR and check CI passes
+
+```
+git push --set-upstream origin v0.2.0:master
 git tag -a 'v0.2.0' -m 'v0.2.0'
-git push origin v0.2.0
+git push origin refs/tags/v0.2.0
 cargo publish
 ```
 
