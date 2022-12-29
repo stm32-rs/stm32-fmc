@@ -12,7 +12,7 @@ readme = "README.md"
 exclude = [".gitignore"]
 
 [package.metadata.docs.rs]
-features = ["sdram"]
+features = ["sdram", "nand"]
 
 [dependencies.log]
 version = "^0.4.8"
@@ -32,4 +32,5 @@ paste = "1.0"
 [features]
 trace-register-values = []
 sdram = []
-default = ["sdram"]
+nand = []
+default = ["sdram", "nand"]

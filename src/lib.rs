@@ -51,7 +51,7 @@
 //!
 //! ## Wrap constructor methods
 //!
-//! Each memory controller type ([`Sdram`](Sdram), `Nand` (todo), ..) provides both
+//! Each memory controller type ([`Sdram`](Sdram), [`Nand`](Nand), ..) provides both
 //! `new` and `new_unchecked` methods.
 //!
 //! For the convenience of users, you may want to wrap these with your `new` method,
@@ -144,6 +144,13 @@ pub use sdram::{
     PinsSdram, Sdram, SdramChip, SdramConfiguration, SdramPinSet,
     SdramTargetBank, SdramTiming,
 };
+
+#[cfg(feature = "nand")]
+mod nand;
+#[cfg(feature = "nand")]
+pub use nand::device as nand_device;
+#[cfg(feature = "nand")]
+pub use nand::{Nand, NandChip, NandConfiguration, NandTiming, PinsNand};
 
 /// Memory device definitions
 pub mod devices;

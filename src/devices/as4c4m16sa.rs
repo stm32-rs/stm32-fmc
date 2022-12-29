@@ -1,5 +1,5 @@
 /// Alliance Memory AS4C4M16SA SDRAM
-/// https://www.alliancememory.com/wp-content/uploads/pdf/dram/Alliance_Memory_64M-AS4C4M16SA-CI_v5.0_October_2018.pdf
+/// <https://www.alliancememory.com/wp-content/uploads/pdf/dram/Alliance_Memory_64M-AS4C4M16SA-CI_v5.0_October_2018.pdf>
 #[allow(unused)]
 
 pub mod as4c4m16sa_6 {

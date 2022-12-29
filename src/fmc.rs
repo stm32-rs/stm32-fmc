@@ -188,6 +188,23 @@ impl_32bit_sdram! {
     SdramBank2: [SDCKE1, SDNE1, 4, PBA1: BA1; AddressPins13 [PA11: A11, PA12: A12]]
 }
 
+// ---- NAND ----
+
+#[cfg(feature = "nand")]
+use crate::nand::PinsNand;
+
+#[cfg(feature = "nand")]
+#[rustfmt::skip]
+/// 8-bit NAND
+impl<ALE, CLE, PD0, PD1, PD2, PD3, PD4, PD5, PD6, PD7, PNCE, PNOE, PNWE, PNWAIT>
+    PinsNand
+    for (ALE, CLE, PD0, PD1, PD2, PD3, PD4, PD5, PD6, PD7, PNCE, PNOE, PNWE, PNWAIT)
+where ALE: A17, CLE: A16,
+      PD0: D0, PD1: D1, PD2: D2, PD3: D3, PD4: D4, PD5: D5, PD6: D6, PD7: D7,
+      PNCE: NCE, PNOE: NOE, PNWE: NWE, PNWAIT: NWAIT {
+    const N_DATA: usize = 8;
+}
+
 /// Marks a type as an A0 pin
 pub trait A0 {}
 /// Marks a type as an A1 pin
@@ -352,8 +369,6 @@ pub trait NBL1 {}
 pub trait NBL2 {}
 /// Marks a type as a NBL3 pin
 pub trait NBL3 {}
-/// Marks a type as a NCE pin
-pub trait NCE {}
 /// Marks a type as a NE1 pin
 pub trait NE1 {}
 /// Marks a type as a NE2 pin
@@ -364,6 +379,8 @@ pub trait NE3 {}
 pub trait NE4 {}
 /// Marks a type as a NL pin
 pub trait NL {}
+/// Marks a type as a NCE pin
+pub trait NCE {}
 /// Marks a type as a NOE pin
 pub trait NOE {}
 /// Marks a type as a NWAIT pin

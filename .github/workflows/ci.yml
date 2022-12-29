@@ -23,4 +23,4 @@ jobs:
 
       - name: Build
         run: |
-          cargo test --verbose --features=sdram
+          cargo test --verbose --features=sdram,nand

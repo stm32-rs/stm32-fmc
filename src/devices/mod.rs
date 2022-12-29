@@ -24,3 +24,8 @@ pub use is42s32800g::*;
 mod mt48lc4m32b2;
 #[cfg(feature = "sdram")]
 pub use mt48lc4m32b2::*;
+
+#[cfg(feature = "nand")]
+mod s34ml08g3;
+#[cfg(feature = "nand")]
+pub use s34ml08g3::*;

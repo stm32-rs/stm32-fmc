@@ -1,1 +1,4 @@
-status = ["ci"]
+status = [
+    "build-dev (1.43.0)",
+    "build-dev (stable)",
+]

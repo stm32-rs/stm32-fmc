@@ -63,7 +63,9 @@ directly.
 
 #### Initialising
 
-Once you have an `Sdram` type, you can:
+Once you have an
+[`Sdram`](https://docs.rs/stm32-fmc/latest/stm32_fmc/struct.Sdram.html)
+instance, you can:
 
 * Initialise it by calling
   [`init`](https://docs.rs/stm32-fmc/latest/stm32_fmc/struct.Sdram.html#method.init). This
@@ -80,20 +82,69 @@ let ram = unsafe {
 };
 ```
 
+### NAND Flash
+
+The FMC peripheral supports once external parallel NAND flash device.
+
+External memories are defined by
+[`NandChip`](https://docs.rs/stm32-fmc/latest/stm32_fmc/trait.NandChip.html)
+implementations. There are examples in the [`devices`](src/devices/) folder, or
+you can make your own.
+
+To pass pins to a constructor, create a tuple with the following ordering:
+
+```rust
+let pins = (
+    // A17/ALE
+    // A16/CLE
+    pa0, ...
+    // D0-D7
+    // NCE/#CE
+    // NOE/#RE
+    // NWE/#WE
+    // NWAIT/R/#B
+);
+```
+
+#### Constructing
+
+If you are using a HAL, see the HAL documentation.
+
+Otherwise you can implement
+[`FmcPeripheral`](https://docs.rs/stm32-fmc/latest/stm32_fmc/trait.FmcPeripheral.html)
+yourself then use
+[`Nand::new`](https://docs.rs/stm32-fmc/latest/stm32_fmc/struct.Nand.html#method.new)
+/
+[`Nand::new_unchecked`](https://docs.rs/stm32-fmc/latest/stm32_fmc/struct.Nand.html#method.new_unchecked)
+directly.
+
+#### Initialising
+
+Once you have an
+[`Nand`](https://docs.rs/stm32-fmc/latest/stm32_fmc/struct.Nand.html) instance
+you should initialise it by calling
+[`init`](https://docs.rs/stm32-fmc/latest/stm32_fmc/struct.Nand.html#method.init). This
+returns a
+[`NandDevice`](https://docs.rs/stm32-fmc/latest/stm32_fmc/nand_device/struct.NandDevice.html)
+instance.
+
+```rust
+let mut nand_device = nand.init(&mut delay);
+
+// Read device identifier
+let id = nand_device.read_id();
+```
+
 ### NOR Flash/PSRAM
 
 TODO
 
-### NAND Flash
-
-TODO
-
 ### Troubleshooting
-The library automatically does some trace-level logging either via `log` or via `defmt`. 
+The library automatically does some trace-level logging either via `log` or via `defmt`.
 To enable such logging, enable either the `log` or `defmt` feature in your `Cargo.toml`.
 
-For debugging the SDRAM register contents, the library provides additional feature `trace-register-values`, which when enabled causes the init function to log the register contents to the trace level. 
-This is useful for example when you want to compare the register values between `stm32-fmc` and CubeMX code. 
+For debugging the SDRAM register contents, the library provides additional feature `trace-register-values`, which when enabled causes the init function to log the register contents to the trace level.
+This is useful for example when you want to compare the register values between `stm32-fmc` and CubeMX code.
 Note that one of the logging features (`log`/`defmt`) must be enabled for this to work.
 
 ### Implementing a new device
