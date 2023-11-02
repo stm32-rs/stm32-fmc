@@ -4,7 +4,7 @@
 
 ## [v0.3.0] 2022-12-29
 
-* Parallel NAND Flash is supported with the `nand ` feature flag [#8]
+* Parallel NAND Flash is supported with the `nand ` feature flag [#9]
 * Add S34ML08G3 NAND [#8]
 * Add support for defmt logging. Add support for dumping register contents at the end of init function. [#7]
 
@@ -43,8 +43,9 @@
 [v0.2.1]: https://github.com/stm32-rs/stm32-fmc/compare/v0.2.0...v0.2.1
 [v0.2.0]: https://github.com/stm32-rs/stm32-fmc/compare/v0.1.2...v0.2.0
 
-[#3]: https://github.com/stm32-rs/stm32h7xx-hal/pull/3
-[#4]: https://github.com/stm32-rs/stm32h7xx-hal/pull/4
-[#5]: https://github.com/stm32-rs/stm32h7xx-hal/pull/5
-[#7]: https://github.com/stm32-rs/stm32h7xx-hal/pull/7
-[#8]: https://github.com/stm32-rs/stm32h7xx-hal/pull/8
+[#3]: https://github.com/stm32-rs/stm32-fmc/pull/3
+[#4]: https://github.com/stm32-rs/stm32-fmc/pull/4
+[#5]: https://github.com/stm32-rs/stm32-fmc/pull/5
+[#7]: https://github.com/stm32-rs/stm32-fmc/pull/7
+[#8]: https://github.com/stm32-rs/stm32-fmc/pull/8
+[#9]: https://github.com/stm32-rs/stm32-fmc/pull/9
