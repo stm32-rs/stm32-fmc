@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+* Upgrade to embedded-hal v1.0.0-rc.3
+
 ## [v0.3.0] 2022-12-29
 
 * Parallel NAND Flash is supported with the `nand ` feature flag [#9]

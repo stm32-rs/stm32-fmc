@@ -24,7 +24,7 @@ version = "0.3"
 optional = true
 
 [dependencies]
-embedded-hal = "0.2.4"
+embedded-hal = { version = "=1.0.0-rc.3" }
 
 [dev-dependencies]
 paste = "1.0"
