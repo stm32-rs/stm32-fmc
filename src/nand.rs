@@ -4,7 +4,7 @@
 use core::cmp;
 use core::marker::PhantomData;
 
-use embedded_hal::blocking::delay::DelayUs;
+use embedded_hal::delay::DelayNs;
 
 use crate::fmc::{FmcBank, FmcRegisters};
 use crate::FmcPeripheral;
@@ -136,7 +136,7 @@ impl<IC: NandChip, FMC: FmcPeripheral> Nand<FMC, IC> {
     /// required by the NAND device
     pub fn init<D>(&mut self, delay: &mut D) -> device::NandDevice
     where
-        D: DelayUs<u8>,
+        D: DelayNs,
     {
         // calculate clock period, round down
         let fmc_source_ck_hz = self.fmc.source_clock_hz();
@@ -150,7 +150,7 @@ impl<IC: NandChip, FMC: FmcPeripheral> Nand<FMC, IC> {
 
         // enable memory controller
         self.fmc.memory_controller_enable();
-        delay.delay_us(1u8);
+        delay.delay_us(1);
 
         // NOTE(unsafe): FMC controller has been initialized and enabled for
         // this bank

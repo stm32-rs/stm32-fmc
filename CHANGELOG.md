@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+* Upgrade to embedded-hal v1.0
+
 ## [v0.3.2] 2024-08-04
 
 * Fix: Add import for IS42S32400F

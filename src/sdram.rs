@@ -4,7 +4,7 @@ use core::cmp;
 use core::convert::TryInto;
 use core::marker::PhantomData;
 
-use embedded_hal::blocking::delay::DelayUs;
+use embedded_hal::delay::DelayNs;
 
 use crate::fmc::{AddressPinSet, FmcBank, FmcRegisters};
 use crate::FmcPeripheral;
@@ -254,7 +254,7 @@ impl<IC: SdramChip, FMC: FmcPeripheral> Sdram<FMC, IC> {
     /// maximum SD clock in `IC::TIMING`
     pub fn init<D>(&mut self, delay: &mut D) -> *mut u32
     where
-        D: DelayUs<u8>,
+        D: DelayNs,
     {
         use SdramCommand::*;
 
