@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 
-* Upgrade to embedded-hal v1.0
+* Upgrade to embedded-hal v1.0 [#13]
 
 ## [v0.3.2] 2024-08-04
 
@@ -61,4 +61,5 @@
 [#7]: https://github.com/stm32-rs/stm32-fmc/pull/7
 [#8]: https://github.com/stm32-rs/stm32-fmc/pull/8
 [#9]: https://github.com/stm32-rs/stm32-fmc/pull/9
+[#13]: https://github.com/stm32-rs/stm32-fmc/pull/13
 [#14]: https://github.com/stm32-rs/stm32-fmc/pull/14
