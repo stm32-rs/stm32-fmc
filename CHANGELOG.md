@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+* Upgrade to embedded-hal v1.0 [#13]
+
 ## [v0.3.0] 2022-12-29
 
 * Parallel NAND Flash is supported with the `nand ` feature flag [#9]
@@ -49,3 +51,4 @@
 [#7]: https://github.com/stm32-rs/stm32-fmc/pull/7
 [#8]: https://github.com/stm32-rs/stm32-fmc/pull/8
 [#9]: https://github.com/stm32-rs/stm32-fmc/pull/9
+[#13]: https://github.com/stm32-rs/stm32-fmc/pull/13
