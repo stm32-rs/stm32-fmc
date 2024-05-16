@@ -2,7 +2,7 @@
 #[allow(unused)]
 
 /// Speed Grade 6
-pub mod is42s32800g_6 {
+pub mod is42s32400g_6 {
     use crate::sdram::{SdramChip, SdramConfiguration, SdramTiming};
 
     const BURST_LENGTH_1: u16 = 0x0000;
