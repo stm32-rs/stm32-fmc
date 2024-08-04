@@ -1,6 +1,6 @@
 [package]
 name = "stm32-fmc"
-version = "0.3.1"
+version = "0.3.2"
 authors = ["Richard Meadows <richard@richard.fish>"]
 edition = "2018"
 categories = ["embedded", "hardware-support", "no-std"]
