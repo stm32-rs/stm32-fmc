@@ -16,6 +16,11 @@ mod is42s16400j;
 pub use is42s16400j::*;
 
 #[cfg(feature = "sdram")]
+mod is42s32400f;
+#[cfg(feature = "sdram")]
+pub use is42s32400f::*;
+
+#[cfg(feature = "sdram")]
 mod is42s32800g;
 #[cfg(feature = "sdram")]
 pub use is42s32800g::*;
