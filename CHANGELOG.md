@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [v0.3.1] 2024-08-04
+
+* Add IS42S32400F to devices [#14]
+
 ## [v0.3.0] 2022-12-29
 
 * Parallel NAND Flash is supported with the `nand ` feature flag [#9]
@@ -35,7 +39,8 @@
 * Don't require type to be `Sync` in order to implement FmcPeripheral
 * Begin Changelog
 
-[Unreleased]: https://github.com/stm32-rs/stm32-fmc/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/stm32-rs/stm32-fmc/compare/v0.3.1...HEAD
+[v0.3.1]: https://github.com/stm32-rs/stm32-fmc/compare/v0.3.0...v0.3.1
 [v0.3.0]: https://github.com/stm32-rs/stm32-fmc/compare/v0.2.4...v0.3.0
 [v0.2.4]: https://github.com/stm32-rs/stm32-fmc/compare/v0.2.3...v0.2.4
 [v0.2.3]: https://github.com/stm32-rs/stm32-fmc/compare/v0.2.2...v0.2.3
@@ -49,3 +54,4 @@
 [#7]: https://github.com/stm32-rs/stm32-fmc/pull/7
 [#8]: https://github.com/stm32-rs/stm32-fmc/pull/8
 [#9]: https://github.com/stm32-rs/stm32-fmc/pull/9
+[#14]: https://github.com/stm32-rs/stm32-fmc/pull/14
